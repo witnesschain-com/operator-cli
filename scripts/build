@@ -1,16 +1,5 @@
 #!/bin/sh
 
-mkdir release 2>/dev/null
+VERSION=$(git tag)
 
-f="release/version.go"
-
-echo 'package release'			>	$f 
-echo 					>>	$f
-echo 'import "strings"'			>>	$f 
-echo 					>>	$f
-echo 'var VERSION = strings.Replace(`'	>>	$f
-git branch --show-current		>>	$f
-echo -					>>	$f
-git log -1 --format=%ct			>>	$f
-echo '`,"\\n","",-1)'			>>	$f
-go build .
+go build -ldflags "-X main.VERSION=$VERSION" . 
