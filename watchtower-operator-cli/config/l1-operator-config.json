@@ -1,14 +1,13 @@
 {
   "watchtower_private_keys": [
-    "<WatchTower1-private-key>",
-    "<WatchTower2-private-key>",
-    "<WatchTower3-private-key>"
+    "<Watchtower Private Key 1>",
+    "<Watchtower Private Key 2>"
   ],
-  "operator_private_key": "<operator-private-key>",
-  "operator_registry_address": "<operatorRegistry-contract-address>",
-  "witnesshub_address": "<WitnessHub-contract-address>",
-  "avs_directory_address": "<AVSDirectory-contract-address>",
-  "eth_rpc_url": "<rpc-url>",
-  "chain_id": "<chainID>",
-  "gas_limit": "<gas-limit>"
+  "operator_private_key": "<Operator Private Key>",
+  "operator_registry_address": "0xEf1a89841fd189ba28e780A977ca70eb1A5e985D",
+  "witnesshub_address": "0xD25c2c5802198CB8541987b73A8db4c9BCaE5cC7",
+  "avs_directory_address": "0x135dda560e946695d6f155dacafc6f1f25c1f5af",
+  "eth_rpc_url": "<Mainnet RPC URL>",
+  "chain_id": 1,
+  "gas_limit": 500000
 }
