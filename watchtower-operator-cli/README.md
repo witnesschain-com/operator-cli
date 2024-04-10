@@ -3,13 +3,32 @@
 ## Description
 watchtower-operator is a command-line interface (CLI) tool for interacting with some functionalities provided by the WatchTower(EigenLayer AVS) contracts . You can refer to the [How to use the config files](#how-to-use-the_config-files) section to understand how to use the config files.
 
-## How to use
-To build the CLI, use the following command - 
+
+## Installation
+You can get the watchtower-operator cli prebuilt, or build from source
+
+1. Prebuilt
+You can run the following command in your terminal and follow instructions provided by the script to use the cli
 ```
+curl -sSfL witnesschain.com/setup-operator-cli | bash
+```
+
+2. Building from source
+- clone the repository 
+```
+git clone https://github.com/witnesschain-com/operator-cli.git
+```
+
+- Build the binaries
+```
+cd watchtower-operator-cli
 ./build
 ```
 
-If the module is already built you can directly use the exectable -
+
+## How to use
+Once you have the watchtower-operator installed, you can directly use the exectable -
+
 ```
 watchtower-operator command [command options] [arguments...]
 ```
@@ -27,7 +46,7 @@ The structure and details in the config file might differ based on the functiona
 ### Operator config file
 
 #### for command - registerOperatorToAVS
-Default file: config/l1-operator-config.yaml
+Default file: config/l1-operator-config.json.template (reference file)
 
 | Field | Description |
 |----------|----------|
@@ -42,7 +61,7 @@ Default file: config/l1-operator-config.yaml
 
 
 #### for commands - registerWatchtower, deRegisterWatchtower
-Default file: config/l2-operator-config.yaml
+Default file: config/l2-operator-config.json.template (reference file)
 
 | Field | Description |
 |----------|----------|
