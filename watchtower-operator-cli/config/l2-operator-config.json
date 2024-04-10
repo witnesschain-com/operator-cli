@@ -1,0 +1,13 @@
+{
+  "watchtower_private_keys": [
+    "<WatchTower1-private-key>",
+    "<WatchTower2-private-key>",
+    "<WatchTower3-private-key>"
+  ],
+  "operator_private_key": "<operator-private-key>",
+  "operator_registry_address": "<operatorRegistry-contract-address>",
+  "eth_rpc_url": "<rpc-url>",
+  "chain_id": "<chainID>",
+  "gas_limit": "<gas-limit>"
+}
+

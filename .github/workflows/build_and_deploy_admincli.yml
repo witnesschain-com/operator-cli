@@ -1,0 +1,111 @@
+name: CI/CD - Admin CLI Binary Release
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: Version of the release (eg. 1.0.0-beta, 1.1.2)
+        required: true
+      release_type:
+        type: boolean
+        description: Pre-release
+        default: false
+
+env:
+  ADMIN_CLI_DIR: ./watchtower-admin-cli
+  CLI_NAME: "watchtower-admin"
+
+jobs:
+  upload-releasenotes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v3
+        with:
+          name: release_notes
+          path: ${{ env.ADMIN_CLI_DIR }}/RELEASE_NOTES.md
+
+  build-admin-cli:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+        os-label:
+          - linux_x86_64
+          - apple_silicon
+        exclude:
+          - os: ubuntu-latest
+            os-label: apple_silicon
+          - os: macos-latest
+            os-label: linux_x86_64
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22.1"
+
+      - name: Build for release
+        if: ${{ github.event_name == 'release' }}
+        env:
+          CLI_VERSION: ${{ github.event.release.tag_name }}
+        working-directory: ${{ env.ADMIN_CLI_DIR }}
+        run: go build -o ${{env.CLI_NAME}}_${{matrix.os-label}} -ldflags "-X main.VERSION=${{ env.CLI_VERSION }}" .
+      
+      - name: Build for Dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          CLI_VERSION: ${{ github.event.inputs.version }}
+        working-directory: ${{ env.ADMIN_CLI_DIR }}
+        run: go build -o ${{env.CLI_NAME}}_${{matrix.os-label}} -ldflags "-X main.VERSION=${{ env.CLI_VERSION }}" .
+
+      - name: List Output
+        run: ls -ltr ${{ env.ADMIN_CLI_DIR }}
+
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v3
+        with:
+          name: admin-cli-binary
+          path: ${{ env.ADMIN_CLI_DIR }}/${{env.CLI_NAME}}_${{matrix.os-label}}
+          retention-days: 1
+  
+  create-public-release:
+    strategy:
+      matrix:
+        os-label:
+          - linux_x86_64
+          - apple_silicon
+    env:
+      DESTINATION_REPO: kaleidoscope-blockchain/watchtower-admin-cli
+    needs: 
+      - build-admin-cli
+      - upload-releasenotes
+    runs-on: ubuntu-latest
+
+    steps:
+    
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+
+
+      - name: GH Release | Dispatched 
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: softprops/action-gh-release@v0.1.15
+        with:
+          repository: ${{ env.DESTINATION_REPO }}
+          token: ${{ secrets.SHIPMENT_PAT }}
+          tag_name: ${{ github.event.inputs.version }}
+          prerelease: ${{ github.event.inputs.release_type }}
+          body_path: ./release_notes/RELEASE_NOTES.md
+          files: |
+            ./admin-cli-binary/${{ env.CLI_NAME}}_${{matrix.os-label}}
+
