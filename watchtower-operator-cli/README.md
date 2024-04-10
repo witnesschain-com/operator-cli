@@ -25,13 +25,13 @@ cd watchtower-operator-cli
 ./build
 ```
 
-
 ## How to use
 Once you have the watchtower-operator installed, you can directly use the exectable -
 
 ```
 watchtower-operator command [command options] [arguments...]
 ```
+Note: In case you haven't exported the path for watchtower-operator executable, you can start the cli by `./watchtower-operator` 
 
 ## Commands available
 | Command | Description |
