@@ -5,9 +5,11 @@
     "<WatchTower3-private-key>"
   ],
   "operator_private_key": "<operator-private-key>",
-  "operator_registry_address": "<operatorRegistry-contract-address>",
+  "operator_registry_address": "0xEf1a89841fd189ba28e780A977ca70eb1A5e985D",
   "eth_rpc_url": "<rpc-url>",
   "chain_id": "<chainID>",
-  "gas_limit": "<gas-limit>"
+  "gas_limit": 500000,
+  "tx_receipt_timeout": 600,
+  "expiry": 1
 }
 
