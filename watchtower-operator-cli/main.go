@@ -9,9 +9,11 @@ import (
 	"log"
 	"math/big"
 	"os"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/urfave/cli"
@@ -30,6 +32,8 @@ type Config struct {
 	EthRPCUrl               string         `json:"eth_rpc_url"`
 	ChainId                 big.Int        `json:"chain_id"`
 	GasLimit                uint64         `json:"gas_limit"`
+	TxReceiptTimeout        int64          `json:"tx_receipt_timeout"`
+	Expiry                  int64          `json:"expiry"`
 }
 
 var VERSION string = "UNKNOWN"
@@ -100,8 +104,8 @@ func main() {
 			},
 		},
 		{
-			Name:  "deregisterOperatorFromAVS",
-			Usage: "deregisterOperatorFromAVS --config-file ~/path/to/operator_config.json",
+			Name:  "deRegisterOperatorFromAVS",
+			Usage: "deRegisterOperatorFromAVS --config-file ~/path/to/operator_config.json",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:  "config-file",
@@ -138,7 +142,23 @@ func GetConfigFromContext(cCtx *cli.Context) *Config {
 	err = json.Unmarshal(data, &config)
 	CheckError(err, "Error unmarshaling json data")
 
+	SetDefaultConfigValues(&config)
+
 	return &config
+}
+
+func SetDefaultConfigValues(config *Config) {
+	if config.Expiry == 0 {
+		config.Expiry = 1 // 1 day
+	}
+
+	if config.TxReceiptTimeout == 0 {
+		config.TxReceiptTimeout = 5 * 60 // 5 minutes
+	}
+
+	if config.GasLimit == 0 {
+		config.GasLimit = 500000
+	}
 }
 
 func RegisterWatchtower(config *Config) {
@@ -156,7 +176,7 @@ func RegisterWatchtower(config *Config) {
 
 	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
 	regTransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
-	expiry := CalculateExpiry(client)
+	expiry := CalculateExpiry(client, config.Expiry)
 
 	for _, watchTowerPkString := range config.WatchtowerPrivateKeys {
 		watchtowerPrivateKey, err := crypto.HexToECDSA(watchTowerPkString)
@@ -167,8 +187,9 @@ func RegisterWatchtower(config *Config) {
 		watchtowerAddress := GetPublicAddressFromPrivateKey(watchtowerPrivateKey)
 
 		regTx, err := operatorRegistry.RegisterWatchtowerAsOperator(regTransactOpts, watchtowerAddress, expiry, signedMessage)
-		CheckError(err, "Resgistering watchtower as operator failed")
+		CheckError(err, "Registering watchtower as operator failed")
 		fmt.Printf("Tx sent: %s\n", regTx.Hash().Hex())
+		WaitForTransactionReceipt(client, regTx, config.TxReceiptTimeout)
 	}
 }
 
@@ -196,6 +217,7 @@ func DeRegisterWatchtower(config *Config) {
 		deRegTx, err := operatorRegistry.DeRegister(deRegTransactOpts, watchtowerAddress)
 		CheckError(err, "Deregister failed")
 		fmt.Printf("Tx sent: %s\n", deRegTx.Hash().Hex())
+		WaitForTransactionReceipt(client, deRegTx, config.TxReceiptTimeout)
 	}
 }
 
@@ -221,9 +243,10 @@ func RegisterOperatorToAVS(config *Config) {
 	avsRegtransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
 
 	tx, err := witnessHub.RegisterOperatorToAVS(avsRegtransactOpts, operatorAddress, operatorSignature)
-	CheckError(err, "Resgistering operator to AVS failed")
+	CheckError(err, "Registering operator to AVS failed")
 
 	fmt.Printf("Tx sent: %s\n", tx.Hash().Hex())
+	WaitForTransactionReceipt(client, tx, config.TxReceiptTimeout)
 }
 
 func DeregisterOperatorFromAVS(config *Config) {
@@ -243,22 +266,24 @@ func DeregisterOperatorFromAVS(config *Config) {
 	avsRegtransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
 
 	tx, err := witnessHub.DeregisterOperatorFromAVS(avsRegtransactOpts, operatorAddress)
-	CheckError(err, "Resgistering operator to AVS failed")
+	CheckError(err, "Dregistering operator from AVS failed")
 
 	fmt.Printf("Tx sent: %s\n", tx.Hash().Hex())
+	WaitForTransactionReceipt(client, tx, config.TxReceiptTimeout)
 }
 
-func CalculateExpiry(client *ethclient.Client) *big.Int {
+func CalculateExpiry(client *ethclient.Client, expectedExpiry int64) *big.Int {
 	// Get the latest block header
 	header, err := client.HeaderByNumber(context.Background(), nil)
 	CheckError(err, "Could not get HeaderByNumber")
 
 	// Get the current timestamp from the latest block header
-	currentTimestamp := header.Time
+	currentTimestamp := big.NewInt(int64(header.Time))
 
-	// Add 90 days to the current timestamp
-	newTimestamp := currentTimestamp + uint64(1000000)
-	expiry := new(big.Int).SetUint64(newTimestamp)
+	expiryInSeconds := expectedExpiry * 24 * 60 * 60
+	timeToElapse := big.NewInt(expiryInSeconds)
+
+	expiry := new(big.Int).Add(currentTimestamp, timeToElapse)
 	return expiry
 }
 
@@ -274,7 +299,7 @@ func GenerateSalt() [32]byte {
 
 func GetOpertorSignature(client *ethclient.Client, contractInstance *AvsDirectory.AvsDirectory, config *Config, operatorPrivateKey *ecdsa.PrivateKey, operatorAddress common.Address) WitnessHub.ISignatureUtilsSignatureWithSaltAndExpiry {
 	salt := GenerateSalt()
-	expiry := CalculateExpiry(client)
+	expiry := CalculateExpiry(client, config.Expiry)
 
 	//ON AVS DIRECTORY
 	digestHash, err := contractInstance.CalculateOperatorAVSRegistrationDigestHash(&bind.CallOpts{}, operatorAddress, config.WitnessHubAddress, salt, expiry)
@@ -371,5 +396,21 @@ func PrepareTransactionOptions(client *ethclient.Client, chainId big.Int, gasLim
 func CheckError(err error, description string) {
 	if err != nil {
 		log.Fatalln(description, ": ", err)
+	}
+}
+
+func WaitForTransactionReceipt(client *ethclient.Client, txn *types.Transaction, timeout int64) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*(time.Second))
+
+	defer cancel()
+
+	receipt, err := bind.WaitMined(ctx, client, txn)
+	if err != nil {
+		CheckError(err, "Transaction failed")
+	} else if receipt.Status == 1 {
+		fmt.Println("Transaction executed successfully, logs are ...")
+		fmt.Println(receipt.Logs)
+	} else if receipt.Status == 0 {
+		log.Fatalln("Transaction submitted successfully but failed to execute!")
 	}
 }
