@@ -10,6 +10,6 @@
   "chain_id": "<chainID>",
   "gas_limit": 500000,
   "tx_receipt_timeout": 600,
-  "expiry": 1
+  "expiry_in_days": 1
 }
 

@@ -33,7 +33,7 @@ type Config struct {
 	ChainId                 big.Int        `json:"chain_id"`
 	GasLimit                uint64         `json:"gas_limit"`
 	TxReceiptTimeout        int64          `json:"tx_receipt_timeout"`
-	Expiry                  int64          `json:"expiry"`
+	ExpiryInDays            int64          `json:"expiry_in_days"`
 }
 
 var VERSION string = "UNKNOWN"
@@ -148,8 +148,8 @@ func GetConfigFromContext(cCtx *cli.Context) *Config {
 }
 
 func SetDefaultConfigValues(config *Config) {
-	if config.Expiry == 0 {
-		config.Expiry = 1 // 1 day
+	if config.ExpiryInDays == 0 {
+		config.ExpiryInDays = 1 // 1 day
 	}
 
 	if config.TxReceiptTimeout == 0 {
@@ -176,7 +176,7 @@ func RegisterWatchtower(config *Config) {
 
 	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
 	regTransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
-	expiry := CalculateExpiry(client, config.Expiry)
+	expiry := CalculateExpiry(client, config.ExpiryInDays)
 
 	for _, watchTowerPkString := range config.WatchtowerPrivateKeys {
 		watchtowerPrivateKey, err := crypto.HexToECDSA(watchTowerPkString)
@@ -272,7 +272,7 @@ func DeregisterOperatorFromAVS(config *Config) {
 	WaitForTransactionReceipt(client, tx, config.TxReceiptTimeout)
 }
 
-func CalculateExpiry(client *ethclient.Client, expectedExpiry int64) *big.Int {
+func CalculateExpiry(client *ethclient.Client, expectedExpiryDays int64) *big.Int {
 	// Get the latest block header
 	header, err := client.HeaderByNumber(context.Background(), nil)
 	CheckError(err, "Could not get HeaderByNumber")
@@ -280,7 +280,7 @@ func CalculateExpiry(client *ethclient.Client, expectedExpiry int64) *big.Int {
 	// Get the current timestamp from the latest block header
 	currentTimestamp := big.NewInt(int64(header.Time))
 
-	expiryInSeconds := expectedExpiry * 24 * 60 * 60
+	expiryInSeconds := expectedExpiryDays * 24 * 60 * 60
 	timeToElapse := big.NewInt(expiryInSeconds)
 
 	expiry := new(big.Int).Add(currentTimestamp, timeToElapse)
@@ -299,7 +299,7 @@ func GenerateSalt() [32]byte {
 
 func GetOpertorSignature(client *ethclient.Client, contractInstance *AvsDirectory.AvsDirectory, config *Config, operatorPrivateKey *ecdsa.PrivateKey, operatorAddress common.Address) WitnessHub.ISignatureUtilsSignatureWithSaltAndExpiry {
 	salt := GenerateSalt()
-	expiry := CalculateExpiry(client, config.Expiry)
+	expiry := CalculateExpiry(client, config.ExpiryInDays)
 
 	//ON AVS DIRECTORY
 	digestHash, err := contractInstance.CalculateOperatorAVSRegistrationDigestHash(&bind.CallOpts{}, operatorAddress, config.WitnessHubAddress, salt, expiry)
