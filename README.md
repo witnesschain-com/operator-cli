@@ -39,6 +39,7 @@ Note: In case you haven't exported the path for watchtower-operator executable, 
 |registerWatchtower | Used to register watch tower |
 |deRegisterWatchtower | Used to deregister watch tower |
 |registerOperatorToAVS | Used to notify EigenLayer that an operator is registered to the AVS |
+|deRegisterOperatorToAVS | Used to notify EigenLayer that an operator is de-registered from the AVS |
 
 ## How to use the config files
 The structure and details in the config file might differ based on the functionality you are using. Config files related to both, the operator and the admin functionality have been explained below. Enter the following details in the config file. Changing the key names in the json file will lead to misbehavior
@@ -58,6 +59,8 @@ Default file: config/l1-operator-config.json.template (reference file)
 |eth_rpc_url | The RPC URL where you want to perform the transactions |
 |chain_id | Chain ID of the respective chain |
 |gas_limit | The gas limit you want to set while sending the transactions |
+|tx_receipt_timeout | Transaction receipt timeout in seconds |
+|expiry_in_days | Signature expiry in days |
 
 
 > **Note:** The same l1-operator-config.json file can be used for the registerWatchtower, deRegisterWatchtower too. But vice-versa is not possible

@@ -175,6 +175,12 @@ func RegisterWatchtower(config *Config) {
 	CheckError(err, "Converting private key to ECDSA format failed")
 
 	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
+
+	if !IsOperatorWhitelisted(operatorAddress, operatorRegistry) {
+		fmt.Printf("Operator %s is not whitelisted\n", operatorAddress.Hex())
+		return
+	}
+
 	regTransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
 	expiry := CalculateExpiry(client, config.ExpiryInDays)
 
@@ -185,6 +191,11 @@ func RegisterWatchtower(config *Config) {
 		signedMessage := SignOperatorAddress(client, config, watchtowerPrivateKey, operatorAddress, *expiry)
 
 		watchtowerAddress := GetPublicAddressFromPrivateKey(watchtowerPrivateKey)
+
+		if IsWatchtowerRegistered(watchtowerAddress, operatorRegistry) {
+			fmt.Printf("Watchtower %s is already registered\n", watchtowerAddress.Hex())
+			continue
+		}
 
 		regTx, err := operatorRegistry.RegisterWatchtowerAsOperator(regTransactOpts, watchtowerAddress, expiry, signedMessage)
 		CheckError(err, "Registering watchtower as operator failed")
@@ -206,6 +217,13 @@ func DeRegisterWatchtower(config *Config) {
 	operatorPrivateKey, err := crypto.HexToECDSA(config.OperatorPrivateKey)
 	CheckError(err, "Converting private key to ECDSA format failed")
 
+	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
+
+	if !IsOperatorWhitelisted(operatorAddress, operatorRegistry) {
+		fmt.Printf("Operator %s is not whitelisted\n", operatorAddress.Hex())
+		return
+	}
+
 	deRegTransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
 
 	for _, watchTowerPkString := range config.WatchtowerPrivateKeys {
@@ -213,6 +231,11 @@ func DeRegisterWatchtower(config *Config) {
 		CheckError(err, "Converting private key to ECDSA format failed")
 
 		watchtowerAddress := GetPublicAddressFromPrivateKey(watchtowerPrivateKey)
+
+		if !IsWatchtowerRegistered(watchtowerAddress, operatorRegistry) {
+			fmt.Printf("Watchtower %s is not registered\n", watchtowerAddress.Hex())
+			continue
+		}
 
 		deRegTx, err := operatorRegistry.DeRegister(deRegTransactOpts, watchtowerAddress)
 		CheckError(err, "Deregister failed")
@@ -228,15 +251,23 @@ func RegisterOperatorToAVS(config *Config) {
 	id, _ := client.ChainID(context.Background())
 	fmt.Println("Connection successful : ", id)
 
+	operatorRegistry, err := OperatorRegistry.NewOperatorRegistry(config.OperatorRegistryAddress, client)
+	CheckError(err, "Instantiating OperatorRegistry contract failed")
+
+	operatorPrivateKey, err := crypto.HexToECDSA(config.OperatorPrivateKey)
+	CheckError(err, "Converting private key to ECDSA format failed")
+	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
+
+	if !IsOperatorWhitelisted(operatorAddress, operatorRegistry) {
+		fmt.Printf("Operator %s is not whitelisted\n", operatorAddress.Hex())
+		return
+	}
+
 	avsDirectory, err := AvsDirectory.NewAvsDirectory(config.AvsDirectoryAddress, client)
 	CheckError(err, "Instantiating AvsDirectory contract failed")
 
 	witnessHub, err := WitnessHub.NewWitnessHub(config.WitnessHubAddress, client)
 	CheckError(err, "Instantiating WitnessHub contract failed")
-
-	operatorPrivateKey, err := crypto.HexToECDSA(config.OperatorPrivateKey)
-	CheckError(err, "Converting private key to ECDSA format failed")
-	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
 
 	operatorSignature := GetOpertorSignature(client, avsDirectory, config, operatorPrivateKey, operatorAddress)
 
@@ -413,4 +444,16 @@ func WaitForTransactionReceipt(client *ethclient.Client, txn *types.Transaction,
 	} else if receipt.Status == 0 {
 		log.Fatalln("Transaction submitted successfully but failed to execute!")
 	}
+}
+
+func IsWatchtowerRegistered(watchtower common.Address, operatorRegistry *OperatorRegistry.OperatorRegistry) bool {
+	registered, err := operatorRegistry.IsValidWatchtower(&bind.CallOpts{}, watchtower)
+	CheckError(err, "Error checking if watchtower is already registered")
+	return registered
+}
+
+func IsOperatorWhitelisted(operator common.Address, operatorRegistry *OperatorRegistry.OperatorRegistry) bool {
+	active, err := operatorRegistry.IsActiveOperator(&bind.CallOpts{}, operator)
+	CheckError(err, "Error checking if operator is whitelisted")
+	return active
 }
