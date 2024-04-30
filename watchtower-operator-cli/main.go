@@ -266,6 +266,11 @@ func RegisterOperatorToAVS(config *Config) {
 	avsDirectory, err := AvsDirectory.NewAvsDirectory(config.AvsDirectoryAddress, client)
 	CheckError(err, "Instantiating AvsDirectory contract failed")
 
+	if IsOperatorRegistered(config.WitnessHubAddress, operatorAddress, avsDirectory) {
+		fmt.Printf("Operator %s is already registered\n", operatorAddress.Hex())
+		return
+	}
+
 	witnessHub, err := WitnessHub.NewWitnessHub(config.WitnessHubAddress, client)
 	CheckError(err, "Instantiating WitnessHub contract failed")
 
@@ -290,9 +295,17 @@ func DeregisterOperatorFromAVS(config *Config) {
 	witnessHub, err := WitnessHub.NewWitnessHub(config.WitnessHubAddress, client)
 	CheckError(err, "Instantiating WitnessHub contract failed")
 
+	avsDirectory, err := AvsDirectory.NewAvsDirectory(config.AvsDirectoryAddress, client)
+	CheckError(err, "Instantiating AvsDirectory contract failed")
+
 	operatorPrivateKey, err := crypto.HexToECDSA(config.OperatorPrivateKey)
 	CheckError(err, "Converting private key to ECDSA format failed")
 	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
+
+	if !IsOperatorRegistered(config.WitnessHubAddress, operatorAddress, avsDirectory) {
+		fmt.Printf("Operator %s is not registered\n", operatorAddress.Hex())
+		return
+	}
 
 	avsRegtransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
 
@@ -456,4 +469,10 @@ func IsOperatorWhitelisted(operator common.Address, operatorRegistry *OperatorRe
 	active, err := operatorRegistry.IsActiveOperator(&bind.CallOpts{}, operator)
 	CheckError(err, "Error checking if operator is whitelisted")
 	return active
+}
+
+func IsOperatorRegistered(witnessHubAddress common.Address, operator common.Address, avsDirectory *AvsDirectory.AvsDirectory) bool {
+	status, err := avsDirectory.AvsOperatorStatus(&bind.CallOpts{}, witnessHubAddress, operator)
+	CheckError(err, "Checking operator status failed")
+	return status != 0
 }
