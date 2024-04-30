@@ -45,6 +45,11 @@ func RegisterOperatorToAVS(config *operator_config.OperatorConfig) {
 	avsDirectory, err := AvsDirectory.NewAvsDirectory(config.AvsDirectoryAddress, client)
 	wc_common.CheckError(err, "Instantiating AvsDirectory contract failed")
 
+	if wc_common.IsOperatorRegistered(config.WitnessHubAddress, operatorAddress, avsDirectory) {
+		fmt.Printf("Operator %s is already registered\n", operatorAddress.Hex())
+		return
+	}
+
 	witnessHub, err := WitnessHub.NewWitnessHub(config.WitnessHubAddress, client)
 	wc_common.CheckError(err, "Instantiating WitnessHub contract failed")
 

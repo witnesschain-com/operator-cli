@@ -3,6 +3,7 @@ package operator_commands
 import (
 	"fmt"
 	wc_common "operator-cli/common"
+	"operator-cli/common/bindings/AvsDirectory"
 	"operator-cli/common/bindings/WitnessHub"
 	operator_config "operator-cli/watchtower-operator/config"
 
@@ -29,10 +30,18 @@ func DeRegisterOperatorFromAVSCmd() *cli.Command {
 func DeRegisterOperatorFromAVS(config *operator_config.OperatorConfig) {
 	client := wc_common.ConnectToUrl(config.EthRPCUrl)
 
+	operatorPrivateKey, operatorAddress := wc_common.GetECDSAPrivateAndPublicKey(wc_common.GetPrivateKey(config.OperatorPrivateKey))
+	avsDirectory, err := AvsDirectory.NewAvsDirectory(config.AvsDirectoryAddress, client)
+	wc_common.CheckError(err, "Instantiating AvsDirectory contract failed")
+
+	if !wc_common.IsOperatorRegistered(config.WitnessHubAddress, operatorAddress, avsDirectory) {
+		fmt.Printf("Operator %s is not registered\n", operatorAddress.Hex())
+		return
+	}
+
 	witnessHub, err := WitnessHub.NewWitnessHub(config.WitnessHubAddress, client)
 	wc_common.CheckError(err, "Instantiating WitnessHub contract failed")
 
-	operatorPrivateKey, operatorAddress := wc_common.GetECDSAPrivateAndPublicKey(wc_common.GetPrivateKey(config.OperatorPrivateKey))
 	avsRegtransactOpts := wc_common.PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
 
 	tx, err := witnessHub.DeregisterOperatorFromAVS(avsRegtransactOpts, operatorAddress)

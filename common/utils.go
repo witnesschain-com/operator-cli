@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
+	"operator-cli/common/bindings/AvsDirectory"
 	"operator-cli/common/bindings/OperatorRegistry"
 	"os"
 	"os/exec"
@@ -168,4 +169,10 @@ func IsOperatorWhitelisted(operator common.Address, operatorRegistry *OperatorRe
 	active, err := operatorRegistry.IsActiveOperator(&bind.CallOpts{}, operator)
 	CheckError(err, "Error checking if operator is whitelisted")
 	return active
+}
+
+func IsOperatorRegistered(witnessHubAddress common.Address, operator common.Address, avsDirectory *AvsDirectory.AvsDirectory) bool {
+	status, err := avsDirectory.AvsOperatorStatus(&bind.CallOpts{}, witnessHubAddress, operator)
+	CheckError(err, "Checking operator status failed")
+	return status != 0
 }
