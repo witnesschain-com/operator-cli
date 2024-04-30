@@ -69,6 +69,66 @@ To store and use the keys in an encrypted format, use the `use_encrypted_keys` f
 ### Sub-commands
 The `keys` command has 4 sub-commands. Let's look at them one by one -
 1. `init` - This command is used to initiate a new gocryptfs file system. This will ask you to input a password which will be required whenever we need to access these file. It also performs password validations for stromger passwords. To bypass this validation in the test environment, there is a flag `--insecure(-i)`. Once the command is successfully run, all other actions will need this password.
+```
+$ watchtower-operator keys init
+
+Creating directory:  .encrypted_keys
+Creating directory:  .decrypted_keys
+Enter password to init: **********
+```
+After this command, two directories .encrypted_keys and .decrypted_keys are created. The names indicate their functions. Once this is done, we don't need to do it again, unless the .encrypted_keys or .decrypted_keys are tampered with.
+
 2. `create` - This command will create a new key. This command will need a flag --key-name(-k). This will be the name of the key which will be referred in the future by the CLI. This name should be mentioned in the config file to extract the corresponding private key. When you run this command, it will ask for password to mount and then ask you to enter the private key
-3. `delete` - This command will delete a key. This command will need a flag --key-name(-k). The name given will be searched in the `decrypted_keys` and deleted
-4. `list` - This command will list all the keys currently present (only by file name and created date)
+```
+$ watchtower-operator keys create wt1
+
+Enter password to mount: **********
+Enter private key: ****************************************************************
+Created key: wt1
+```
+3. `list` - This command will list all the keys currently present (only by file name and created date)
+```
+$ watchtower-operator keys list
+
+Enter password to mount: **********
+   -------------------------------------------------------
+   Name                           Created
+   -------------------------------------------------------
+   wt1                            30-04-2024 11:36:16
+   -------------------------------------------------------
+```
+4. `delete` - This command will delete a key. This command will need a flag --key-name(-k). The name given will be searched in the `decrypted_keys` and deleted
+```
+$ watchtower-operator keys delete -k wt1
+
+Enter password to mount: **********
+Deleted key: wt1
+
+$ watchtower-operator keys list
+
+Enter password to mount: **********
+   -------------------------------------------------------
+   Name                           Created
+   -------------------------------------------------------
+   -------------------------------------------------------
+```
+
+Going forward, the CLI will ask for the mount password to decrpyt and use these keys. This is how the config will look like when using encrypted keys
+
+```
+{
+  "watchtower_private_keys": [
+    "wt1"
+  ],
+  "operator_private_key": "op1",
+  "operator_registry_address": "0xEf1a89841fd189ba28e780A977ca70eb1A5e985D",
+  "witnesshub_address": "0xD25c2c5802198CB8541987b73A8db4c9BCaE5cC7",
+  "avs_directory_address": "0x135dda560e946695d6f155dacafc6f1f25c1f5af",
+  "eth_rpc_url": "<Mainnet RPC URL>",
+  "chain_id": 1,
+  "gas_limit": 5000000,
+  "tx_receipt_timeout": 600,
+  "expiry_in_days": 1,
+  "use_encrypted_keys": true
+}
+```
