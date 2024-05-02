@@ -9,9 +9,11 @@ import (
 	"log"
 	"math/big"
 	"os"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/urfave/cli"
@@ -30,6 +32,8 @@ type Config struct {
 	EthRPCUrl               string         `json:"eth_rpc_url"`
 	ChainId                 big.Int        `json:"chain_id"`
 	GasLimit                uint64         `json:"gas_limit"`
+	TxReceiptTimeout        int64          `json:"tx_receipt_timeout"`
+	ExpiryInDays            int64          `json:"expiry_in_days"`
 }
 
 var VERSION string = "UNKNOWN"
@@ -100,8 +104,8 @@ func main() {
 			},
 		},
 		{
-			Name:  "deregisterOperatorFromAVS",
-			Usage: "deregisterOperatorFromAVS --config-file ~/path/to/operator_config.json",
+			Name:  "deRegisterOperatorFromAVS",
+			Usage: "deRegisterOperatorFromAVS --config-file ~/path/to/operator_config.json",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:  "config-file",
@@ -138,7 +142,23 @@ func GetConfigFromContext(cCtx *cli.Context) *Config {
 	err = json.Unmarshal(data, &config)
 	CheckError(err, "Error unmarshaling json data")
 
+	SetDefaultConfigValues(&config)
+
 	return &config
+}
+
+func SetDefaultConfigValues(config *Config) {
+	if config.ExpiryInDays == 0 {
+		config.ExpiryInDays = 1 // 1 day
+	}
+
+	if config.TxReceiptTimeout == 0 {
+		config.TxReceiptTimeout = 5 * 60 // 5 minutes
+	}
+
+	if config.GasLimit == 0 {
+		config.GasLimit = 500000
+	}
 }
 
 func RegisterWatchtower(config *Config) {
@@ -155,8 +175,14 @@ func RegisterWatchtower(config *Config) {
 	CheckError(err, "Converting private key to ECDSA format failed")
 
 	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
+
+	if !IsOperatorWhitelisted(operatorAddress, operatorRegistry) {
+		fmt.Printf("Operator %s is not whitelisted\n", operatorAddress.Hex())
+		return
+	}
+
 	regTransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
-	expiry := CalculateExpiry(client)
+	expiry := CalculateExpiry(client, config.ExpiryInDays)
 
 	for _, watchTowerPkString := range config.WatchtowerPrivateKeys {
 		watchtowerPrivateKey, err := crypto.HexToECDSA(watchTowerPkString)
@@ -166,9 +192,15 @@ func RegisterWatchtower(config *Config) {
 
 		watchtowerAddress := GetPublicAddressFromPrivateKey(watchtowerPrivateKey)
 
+		if IsWatchtowerRegistered(watchtowerAddress, operatorRegistry) {
+			fmt.Printf("Watchtower %s is already registered\n", watchtowerAddress.Hex())
+			continue
+		}
+
 		regTx, err := operatorRegistry.RegisterWatchtowerAsOperator(regTransactOpts, watchtowerAddress, expiry, signedMessage)
-		CheckError(err, "Resgistering watchtower as operator failed")
+		CheckError(err, "Registering watchtower as operator failed")
 		fmt.Printf("Tx sent: %s\n", regTx.Hash().Hex())
+		WaitForTransactionReceipt(client, regTx, config.TxReceiptTimeout)
 	}
 }
 
@@ -185,6 +217,13 @@ func DeRegisterWatchtower(config *Config) {
 	operatorPrivateKey, err := crypto.HexToECDSA(config.OperatorPrivateKey)
 	CheckError(err, "Converting private key to ECDSA format failed")
 
+	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
+
+	if !IsOperatorWhitelisted(operatorAddress, operatorRegistry) {
+		fmt.Printf("Operator %s is not whitelisted\n", operatorAddress.Hex())
+		return
+	}
+
 	deRegTransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
 
 	for _, watchTowerPkString := range config.WatchtowerPrivateKeys {
@@ -193,9 +232,15 @@ func DeRegisterWatchtower(config *Config) {
 
 		watchtowerAddress := GetPublicAddressFromPrivateKey(watchtowerPrivateKey)
 
+		if !IsWatchtowerRegistered(watchtowerAddress, operatorRegistry) {
+			fmt.Printf("Watchtower %s is not registered\n", watchtowerAddress.Hex())
+			continue
+		}
+
 		deRegTx, err := operatorRegistry.DeRegister(deRegTransactOpts, watchtowerAddress)
 		CheckError(err, "Deregister failed")
 		fmt.Printf("Tx sent: %s\n", deRegTx.Hash().Hex())
+		WaitForTransactionReceipt(client, deRegTx, config.TxReceiptTimeout)
 	}
 }
 
@@ -206,24 +251,38 @@ func RegisterOperatorToAVS(config *Config) {
 	id, _ := client.ChainID(context.Background())
 	fmt.Println("Connection successful : ", id)
 
-	avsDirectory, err := AvsDirectory.NewAvsDirectory(config.AvsDirectoryAddress, client)
-	CheckError(err, "Instantiating AvsDirectory contract failed")
-
-	witnessHub, err := WitnessHub.NewWitnessHub(config.WitnessHubAddress, client)
-	CheckError(err, "Instantiating WitnessHub contract failed")
+	operatorRegistry, err := OperatorRegistry.NewOperatorRegistry(config.OperatorRegistryAddress, client)
+	CheckError(err, "Instantiating OperatorRegistry contract failed")
 
 	operatorPrivateKey, err := crypto.HexToECDSA(config.OperatorPrivateKey)
 	CheckError(err, "Converting private key to ECDSA format failed")
 	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
+
+	if !IsOperatorWhitelisted(operatorAddress, operatorRegistry) {
+		fmt.Printf("Operator %s is not whitelisted\n", operatorAddress.Hex())
+		return
+	}
+
+	avsDirectory, err := AvsDirectory.NewAvsDirectory(config.AvsDirectoryAddress, client)
+	CheckError(err, "Instantiating AvsDirectory contract failed")
+
+	if IsOperatorRegistered(config.WitnessHubAddress, operatorAddress, avsDirectory) {
+		fmt.Printf("Operator %s is already registered\n", operatorAddress.Hex())
+		return
+	}
+
+	witnessHub, err := WitnessHub.NewWitnessHub(config.WitnessHubAddress, client)
+	CheckError(err, "Instantiating WitnessHub contract failed")
 
 	operatorSignature := GetOpertorSignature(client, avsDirectory, config, operatorPrivateKey, operatorAddress)
 
 	avsRegtransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
 
 	tx, err := witnessHub.RegisterOperatorToAVS(avsRegtransactOpts, operatorAddress, operatorSignature)
-	CheckError(err, "Resgistering operator to AVS failed")
+	CheckError(err, "Registering operator to AVS failed")
 
 	fmt.Printf("Tx sent: %s\n", tx.Hash().Hex())
+	WaitForTransactionReceipt(client, tx, config.TxReceiptTimeout)
 }
 
 func DeregisterOperatorFromAVS(config *Config) {
@@ -236,29 +295,39 @@ func DeregisterOperatorFromAVS(config *Config) {
 	witnessHub, err := WitnessHub.NewWitnessHub(config.WitnessHubAddress, client)
 	CheckError(err, "Instantiating WitnessHub contract failed")
 
+	avsDirectory, err := AvsDirectory.NewAvsDirectory(config.AvsDirectoryAddress, client)
+	CheckError(err, "Instantiating AvsDirectory contract failed")
+
 	operatorPrivateKey, err := crypto.HexToECDSA(config.OperatorPrivateKey)
 	CheckError(err, "Converting private key to ECDSA format failed")
 	operatorAddress := GetPublicAddressFromPrivateKey(operatorPrivateKey)
 
+	if !IsOperatorRegistered(config.WitnessHubAddress, operatorAddress, avsDirectory) {
+		fmt.Printf("Operator %s is not registered\n", operatorAddress.Hex())
+		return
+	}
+
 	avsRegtransactOpts := PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
 
 	tx, err := witnessHub.DeregisterOperatorFromAVS(avsRegtransactOpts, operatorAddress)
-	CheckError(err, "Resgistering operator to AVS failed")
+	CheckError(err, "Dregistering operator from AVS failed")
 
 	fmt.Printf("Tx sent: %s\n", tx.Hash().Hex())
+	WaitForTransactionReceipt(client, tx, config.TxReceiptTimeout)
 }
 
-func CalculateExpiry(client *ethclient.Client) *big.Int {
+func CalculateExpiry(client *ethclient.Client, expectedExpiryDays int64) *big.Int {
 	// Get the latest block header
 	header, err := client.HeaderByNumber(context.Background(), nil)
 	CheckError(err, "Could not get HeaderByNumber")
 
 	// Get the current timestamp from the latest block header
-	currentTimestamp := header.Time
+	currentTimestamp := big.NewInt(int64(header.Time))
 
-	// Add 90 days to the current timestamp
-	newTimestamp := currentTimestamp + uint64(1000000)
-	expiry := new(big.Int).SetUint64(newTimestamp)
+	expiryInSeconds := expectedExpiryDays * 24 * 60 * 60
+	timeToElapse := big.NewInt(expiryInSeconds)
+
+	expiry := new(big.Int).Add(currentTimestamp, timeToElapse)
 	return expiry
 }
 
@@ -274,7 +343,7 @@ func GenerateSalt() [32]byte {
 
 func GetOpertorSignature(client *ethclient.Client, contractInstance *AvsDirectory.AvsDirectory, config *Config, operatorPrivateKey *ecdsa.PrivateKey, operatorAddress common.Address) WitnessHub.ISignatureUtilsSignatureWithSaltAndExpiry {
 	salt := GenerateSalt()
-	expiry := CalculateExpiry(client)
+	expiry := CalculateExpiry(client, config.ExpiryInDays)
 
 	//ON AVS DIRECTORY
 	digestHash, err := contractInstance.CalculateOperatorAVSRegistrationDigestHash(&bind.CallOpts{}, operatorAddress, config.WitnessHubAddress, salt, expiry)
@@ -372,4 +441,38 @@ func CheckError(err error, description string) {
 	if err != nil {
 		log.Fatalln(description, ": ", err)
 	}
+}
+
+func WaitForTransactionReceipt(client *ethclient.Client, txn *types.Transaction, timeout int64) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*(time.Second))
+
+	defer cancel()
+
+	receipt, err := bind.WaitMined(ctx, client, txn)
+	if err != nil {
+		CheckError(err, "Transaction failed")
+	} else if receipt.Status == 1 {
+		fmt.Println("Transaction executed successfully, logs are ...")
+		fmt.Println(receipt.Logs)
+	} else if receipt.Status == 0 {
+		log.Fatalln("Transaction submitted successfully but failed to execute!")
+	}
+}
+
+func IsWatchtowerRegistered(watchtower common.Address, operatorRegistry *OperatorRegistry.OperatorRegistry) bool {
+	registered, err := operatorRegistry.IsValidWatchtower(&bind.CallOpts{}, watchtower)
+	CheckError(err, "Error checking if watchtower is already registered")
+	return registered
+}
+
+func IsOperatorWhitelisted(operator common.Address, operatorRegistry *OperatorRegistry.OperatorRegistry) bool {
+	active, err := operatorRegistry.IsActiveOperator(&bind.CallOpts{}, operator)
+	CheckError(err, "Error checking if operator is whitelisted")
+	return active
+}
+
+func IsOperatorRegistered(witnessHubAddress common.Address, operator common.Address, avsDirectory *AvsDirectory.AvsDirectory) bool {
+	status, err := avsDirectory.AvsOperatorStatus(&bind.CallOpts{}, witnessHubAddress, operator)
+	CheckError(err, "Checking operator status failed")
+	return status != 0
 }

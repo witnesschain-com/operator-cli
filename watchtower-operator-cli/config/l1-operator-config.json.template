@@ -9,5 +9,7 @@
   "avs_directory_address": "0x135dda560e946695d6f155dacafc6f1f25c1f5af",
   "eth_rpc_url": "<Mainnet RPC URL>",
   "chain_id": 1,
-  "gas_limit": 500000
+  "gas_limit": 500000,
+  "tx_receipt_timeout": 600,
+  "expiry_in_days": 1
 }
