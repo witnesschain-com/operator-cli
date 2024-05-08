@@ -1,4 +1,4 @@
-module github.com/witnesschain-cli/operator-cli
+module github.com/witnesschain-com/operator-cli
 
 go 1.22.1
 

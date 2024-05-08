@@ -3,10 +3,10 @@ package operator_commands
 import (
 	"fmt"
 
-	wc_common "github.com/witnesschain-cli/operator-cli/common"
-	"github.com/witnesschain-cli/operator-cli/common/bindings/AvsDirectory"
-	"github.com/witnesschain-cli/operator-cli/common/bindings/WitnessHub"
-	operator_config "github.com/witnesschain-cli/operator-cli/watchtower-operator/config"
+	wc_common "github.com/witnesschain-com/operator-cli/common"
+	"github.com/witnesschain-com/operator-cli/common/bindings/AvsDirectory"
+	"github.com/witnesschain-com/operator-cli/common/bindings/WitnessHub"
+	operator_config "github.com/witnesschain-com/operator-cli/watchtower-operator/config"
 
 	"github.com/urfave/cli/v2"
 )

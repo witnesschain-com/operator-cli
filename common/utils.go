@@ -9,8 +9,8 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/witnesschain-cli/operator-cli/common/bindings/AvsDirectory"
-	"github.com/witnesschain-cli/operator-cli/common/bindings/OperatorRegistry"
+	"github.com/witnesschain-com/operator-cli/common/bindings/AvsDirectory"
+	"github.com/witnesschain-com/operator-cli/common/bindings/OperatorRegistry"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"

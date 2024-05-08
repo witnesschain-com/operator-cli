@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	wc_common "github.com/witnesschain-cli/operator-cli/common"
-	operator_commands "github.com/witnesschain-cli/operator-cli/watchtower-operator/commands"
+	wc_common "github.com/witnesschain-com/operator-cli/common"
+	operator_commands "github.com/witnesschain-com/operator-cli/watchtower-operator/commands"
 
 	"github.com/urfave/cli/v2"
 )

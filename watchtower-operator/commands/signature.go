@@ -4,9 +4,9 @@ import (
 	"crypto/ecdsa"
 	"math/big"
 
-	wc_common "github.com/witnesschain-cli/operator-cli/common"
-	"github.com/witnesschain-cli/operator-cli/common/bindings/AvsDirectory"
-	"github.com/witnesschain-cli/operator-cli/common/bindings/WitnessHub"
+	wc_common "github.com/witnesschain-com/operator-cli/common"
+	"github.com/witnesschain-com/operator-cli/common/bindings/AvsDirectory"
+	"github.com/witnesschain-com/operator-cli/common/bindings/WitnessHub"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"

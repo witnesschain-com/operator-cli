@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"os"
 
-	wc_common "github.com/witnesschain-cli/operator-cli/common"
+	wc_common "github.com/witnesschain-com/operator-cli/common"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/urfave/cli/v2"
