@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
-	wc_common "operator-cli/common"
 	"os"
+
+	wc_common "github.com/witnesschain-cli/operator-cli/common"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/urfave/cli/v2"

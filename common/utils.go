@@ -6,10 +6,11 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
-	"operator-cli/common/bindings/AvsDirectory"
-	"operator-cli/common/bindings/OperatorRegistry"
 	"os"
 	"os/exec"
+
+	"github.com/witnesschain-cli/operator-cli/common/bindings/AvsDirectory"
+	"github.com/witnesschain-cli/operator-cli/common/bindings/OperatorRegistry"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"

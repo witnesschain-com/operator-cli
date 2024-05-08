@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	wc_common "operator-cli/common"
-	operator_commands "operator-cli/watchtower-operator/commands"
 	"os"
+
+	wc_common "github.com/witnesschain-cli/operator-cli/common"
+	operator_commands "github.com/witnesschain-cli/operator-cli/watchtower-operator/commands"
 
 	"github.com/urfave/cli/v2"
 )
