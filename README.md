@@ -3,6 +3,29 @@
 ## Description
 watchtower-operator is a command-line interface (CLI) tool for interacting with some functionalities provided by the WatchTower(EigenLayer AVS) contracts . You can refer to the [How to use the config files](#how-to-use-the_config-files) section to understand how to use the config files.
 
+## Installation
+You can get the watchtower-operator cli prebuilt, or build from source
+
+1. **Prebuilt**
+   
+    You can run the following command in your terminal and follow instructions provided by the script to use the cli
+    ```
+    curl -sSfL witnesschain.com/install-operator-cli | bash
+    ```
+
+1. **Building from source**
+   - clone the repository 
+    ```
+    git clone https://github.com/witnesschain-com/operator-cli.git
+    ```
+
+   - Build the binaries
+    ```
+    cd operator-cli/watchtower-operator-cli
+    ./build
+    ```
+
+
 ## How to use
 To build the CLI, use the following command - 
 ```
@@ -21,15 +44,15 @@ watchtower-operator command [command options] [arguments...]
 |registerWatchtower | Used to register watch tower |
 |deRegisterWatchtower | Used to deregister watch tower |
 |registerOperatorToAVS | Used to notify EigenLayer that an operator is registered to the AVS |
-|deRegisterOperatorToAVS | Used to notify EigenLayer that an operator is de-registered from the AVS |
+|deRegisterOperatorFromAVS | Used to notify EigenLayer that an operator is de-registered from the AVS |
 
 ## How to use the config files
-The structure and details in the config file might differ based on the functionality you are using. Config files related to both, the operator and the admin functionality have been explained below. Enter the following details in the config file. Changing the key names in the yaml file will lead to misbehavior
+The structure and details in the config file might differ based on the functionality you are using. Config files related to operator have been explained below. Enter the following details in the config file. Changing the key names in the json file will lead to misbehavior
 
 ### Operator config file
 
-#### for command - registerOperatorToAVS
-Default file: config/l1-operator-config.yaml
+#### for command - registerOperatorToAVS, deRegisterOperatorFromAVS
+Default file: config/l1-operator-config.json
 
 | Field | Description |
 |----------|----------|
@@ -46,7 +69,7 @@ Default file: config/l1-operator-config.yaml
 |use_encrypted_keys| Indicates if you want to store and use the private keys in encrypted format |
 
 #### for commands - registerWatchtower, deRegisterWatchtower
-Default file: config/l2-operator-config.yaml
+Default file: config/l2-operator-config.json
 
 | Field | Description |
 |----------|----------|
@@ -60,7 +83,7 @@ Default file: config/l2-operator-config.yaml
 |expiry| Expiry in days after which the operator signature becomes invalid |
 |use_encrypted_keys| Indicates if you want to store and use the private keys in encrypted format |
 
-> **Note:** The same l1-operator-config.yaml file can be used for the registerWatchtower, deRegisterWatchtower too. But vice-versa is not possible
+> **Note:** The same l1-operator-config.json file can be used for the registerWatchtower, deRegisterWatchtower too. But vice-versa is not possible
 
 ## How to use the encrypted keys
 
