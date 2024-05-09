@@ -53,6 +53,7 @@ jobs:
       - name: GH Release
         uses: softprops/action-gh-release@v2.0.5
         with:
+          tag_name: ${{ env.CLI_VERSION }}
           body_path: RELEASE_NOTES.md
           files: ${{ env.OPERATOR_CLI_DIR }}/${{env.CLI_NAME}}_${{matrix.os-label}}
     
