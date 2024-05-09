@@ -1,0 +1,58 @@
+name: Create Release | Watchtower Operator CLI
+
+on:
+  workflow_dispatch: 
+    inputs:
+      version:
+        type: string
+        description: Version of the release (eg. 1.0.0-beta, 1.1.2)
+        required: true
+      release_type:
+        type: boolean
+        description: Pre-release (set to true if there are strings in versions)
+        default: false
+
+env:
+  OPERATOR_CLI_DIR: ./watchtower-operator-cli
+  CLI_NAME: "watchtower-operator"
+  CGO_ENABLED: 0
+  CLI_VERSION: ${{ github.event.inputs.version }}
+
+jobs:
+  build-operator-cli:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+        os-label:
+          - linux_x86_64
+          - apple_silicon
+        exclude:
+          - os: ubuntu-latest
+            os-label: apple_silicon
+          - os: macos-latest
+            os-label: linux_x86_64
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22.1"
+      
+      - name: Build for Dispatch          
+        working-directory: ${{ env.OPERATOR_CLI_DIR }}
+        run: go build -o ${{env.CLI_NAME}}_${{matrix.os-label}} -ldflags "-X main.VERSION=${{ env.CLI_VERSION }}" .
+
+      - name: List Output
+        run: ls -ltr ${{ env.OPERATOR_CLI_DIR }}
+      
+      - name: GH Release
+        uses: softprops/action-gh-release@v2.0.5
+        with:
+          body_path: RELEASE_NOTES.md
+          files: ${{ env.OPERATOR_CLI_DIR }}/${{env.CLI_NAME}}_${{matrix.os-label}}
+    
