@@ -27,15 +27,12 @@ You can get the watchtower-operator cli prebuilt, or build from source
 
 
 ## How to use
-To build the CLI, use the following command - 
-```
-./build
-```
+Once you have the watchtower-operator installed, you can directly use the exectable -
 
-If the module is already built you can directly use the exectable -
 ```
 watchtower-operator command [command options] [arguments...]
 ```
+Note: In case you haven't exported the path for watchtower-operator executable, you can start the cli by `./watchtower-operator`
 
 ## Commands available
 | Command | Description |
