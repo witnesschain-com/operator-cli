@@ -1,4 +1,4 @@
-**# WitnessChain Operator CLI
+# WitnessChain Operator CLI
 
 ## Description
 watchtower-operator is a command-line interface (CLI) tool for interacting with some functionalities provided by the WatchTower(EigenLayer AVS) contracts . You can refer to the 'How to use the config files' section to understand how to use the config files.
