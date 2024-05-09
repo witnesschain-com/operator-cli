@@ -7,14 +7,14 @@ watchtower-operator is a command-line interface (CLI) tool for interacting with 
 You can get the watchtower-operator cli prebuilt, or build from source
 
 1. **Prebuilt**
-
+   
     You can run the following command in your terminal and follow instructions provided by the script to use the cli
     ```
     curl -sSfL witnesschain.com/install-operator-cli | bash
     ```
 
 1. **Building from source**
-   - clone the repository
+   - clone the repository 
     ```
     git clone https://github.com/witnesschain-com/operator-cli.git
     ```
