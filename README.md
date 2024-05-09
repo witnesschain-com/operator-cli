@@ -7,23 +7,24 @@ watchtower-operator is a command-line interface (CLI) tool for interacting with 
 ## Installation
 You can get the watchtower-operator cli prebuilt, or build from source
 
-1. Prebuilt
-You can run the following command in your terminal and follow instructions provided by the script to use the cli
-```
-curl -sSfL witnesschain.com/setup-operator-cli | bash
-```
+1. **Prebuilt**
+   
+    You can run the following command in your terminal and follow instructions provided by the script to use the cli
+    ```
+    curl -sSfL witnesschain.com/install-operator-cli | bash
+    ```
 
-2. Building from source
-- clone the repository 
-```
-git clone https://github.com/witnesschain-com/operator-cli.git
-```
+1. **Building from source**
+   - clone the repository 
+    ```
+    git clone https://github.com/witnesschain-com/operator-cli.git
+    ```
 
-- Build the binaries
-```
-cd operator-cli/watchtower-operator-cli
-./build
-```
+   - Build the binaries
+    ```
+    cd operator-cli/watchtower-operator-cli
+    ./build
+    ```
 
 ## How to use
 Once you have the watchtower-operator installed, you can directly use the exectable -
