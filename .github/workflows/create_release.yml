@@ -13,7 +13,7 @@ on:
         default: false
 
 env:
-  OPERATOR_CLI_DIR: ./watchtower-operator-cli
+  OPERATOR_CLI_DIR: ./watchtower-operator
   CLI_NAME: "watchtower-operator"
   CGO_ENABLED: 0
   CLI_VERSION: ${{ github.event.inputs.version }}
