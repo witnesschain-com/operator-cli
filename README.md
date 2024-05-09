@@ -49,7 +49,7 @@ The structure and details in the config file might differ based on the functiona
 ### Operator config file
 
 #### for command - registerOperatorToAVS, deRegisterOperatorFromAVS
-Default file: config/l1-operator-config.json
+Default file: config/l1-operator-config.json.template (reference file)
 
 | Field | Description |
 |----------|----------|
@@ -66,7 +66,7 @@ Default file: config/l1-operator-config.json
 |use_encrypted_keys| Indicates if you want to store and use the private keys in encrypted format |
 
 #### for commands - registerWatchtower, deRegisterWatchtower
-Default file: config/l2-operator-config.json
+Default file: config/l2-operator-config.json.template (reference file)
 
 | Field | Description |
 |----------|----------|
