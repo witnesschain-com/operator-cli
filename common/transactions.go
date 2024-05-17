@@ -12,19 +12,21 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func PrepareTransactionOptions(client *ethclient.Client, chainId big.Int, gasLimit uint64, privateKey *ecdsa.PrivateKey) *bind.TransactOpts {
+func GetLatestNonce(client *ethclient.Client, privateKey *ecdsa.PrivateKey) *big.Int {
 	senderAddress := GetPublicAddressFromPrivateKey(privateKey)
-
 	nonce, err := client.PendingNonceAt(context.Background(), senderAddress)
 	CheckError(err, "Pending nonce calculation failed")
+	nonceNew := big.NewInt(int64(nonce))
+	return nonceNew
+}
 
+func PrepareTransactionOptions(client *ethclient.Client, chainId big.Int, gasLimit uint64, privateKey *ecdsa.PrivateKey) *bind.TransactOpts {
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	CheckError(err, "Gas price calculation failed")
 
 	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, &chainId)
 	CheckError(err, "Transactor creation failed")
 
-	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0) // in wei
 	auth.GasLimit = gasLimit   // in units
 	auth.GasPrice = gasPrice
