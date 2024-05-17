@@ -58,6 +58,7 @@ func RegisterOperatorToAVS(config *operator_config.OperatorConfig) {
 	operatorSignature := GetOpertorSignature(client, avsDirectory, config.WitnessHubAddress, operatorPrivateKey, operatorAddress, expiry)
 
 	avsRegtransactOpts := wc_common.PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
+	avsRegtransactOpts.Nonce = wc_common.GetLatestNonce(client, operatorPrivateKey)
 
 	tx, err := witnessHub.RegisterOperatorToAVS(avsRegtransactOpts, operatorAddress, operatorSignature)
 	wc_common.CheckError(err, "Registering operator to AVS failed")

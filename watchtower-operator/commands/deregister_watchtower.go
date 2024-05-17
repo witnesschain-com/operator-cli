@@ -50,6 +50,7 @@ func DeRegisterWatchtower(config *operator_config.OperatorConfig) {
 			fmt.Printf("Watchtower %s is not registered\n", watchtowerAddress.Hex())
 			continue
 		}
+		deRegTransactOpts.Nonce = wc_common.GetLatestNonce(client, operatorPrivateKey)
 
 		deRegTx, err := operatorRegistry.DeRegister(deRegTransactOpts, watchtowerAddress)
 		wc_common.CheckError(err, "Deregister failed")
