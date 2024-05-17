@@ -53,7 +53,7 @@ func RegisterWatchtower(config *operator_config.OperatorConfig) {
 		}
 
 		signedMessage := SignOperatorAddress(client, watchtowerPrivateKey, operatorAddress, *expiry)
-
+		regTransactOpts.Nonce = wc_common.GetLatestNonce(client, operatorPrivateKey)
 		regTx, err := operatorRegistry.RegisterWatchtowerAsOperator(regTransactOpts, watchtowerAddress, expiry, signedMessage)
 		wc_common.CheckError(err, "Registering watchtower as operator failed")
 		fmt.Printf("Tx sent: %s\n", regTx.Hash().Hex())
