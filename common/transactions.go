@@ -21,11 +21,13 @@ func GetLatestNonce(client *ethclient.Client, privateKey *ecdsa.PrivateKey) *big
 }
 
 func PrepareTransactionOptions(client *ethclient.Client, chainId big.Int, gasLimit uint64, privateKey *ecdsa.PrivateKey) *bind.TransactOpts {
+
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	CheckError(err, "Gas price calculation failed")
 
 	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, &chainId)
 	CheckError(err, "Transactor creation failed")
+
 
 	auth.Value = big.NewInt(0) // in wei
 	auth.GasLimit = gasLimit   // in units

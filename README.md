@@ -72,6 +72,7 @@ Default file: config/l1-operator-config.json.template (reference file)
 #### for commands - registerWatchtower, deRegisterWatchtower
 Default file: config/l2-operator-config.json.template (reference file)
 
+
 | Field | Description |
 |----------|----------|
 |watchtower_private_key | Private key of the watchtower |
@@ -105,6 +106,7 @@ After this command, two directories .encrypted_keys and .decrypted_keys are crea
 2. `create` - This command will create a new key. This command will need a flag --key-name(-k). This will be the name of the key which will be referred in the future by the CLI. This name should be mentioned in the config file to extract the corresponding private key. When you run this command, it will ask for password to mount and then ask you to enter the private key
 ```
 $ watchtower-operator keys create -k wt1
+
 
 Enter password to mount: **********
 Enter private key: ****************************************************************

@@ -45,6 +45,7 @@ func DeRegisterOperatorFromAVS(config *operator_config.OperatorConfig) {
 
 	avsRegtransactOpts := wc_common.PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
 	avsRegtransactOpts.Nonce = wc_common.GetLatestNonce(client, operatorPrivateKey)
+
 	tx, err := witnessHub.DeregisterOperatorFromAVS(avsRegtransactOpts, operatorAddress)
 	wc_common.CheckError(err, "Deregistering operator from AVS failed")
 

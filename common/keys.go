@@ -145,6 +145,7 @@ func ListKeyCmd() {
 
 func InitGocryptfs(insecure bool) {
 	initCmd := exec.Command("gocryptfs", "-init", "-plaintextnames", EncryptedDir)
+
 	RunCommandWithPassword(initCmd, "init", insecure)
 }
 
@@ -187,6 +188,7 @@ func CreateKeyFileAndStoreKey(keyFile string, privateKey string) {
 
 func ValidEncryptedDir() bool {
 	_, err := os.Stat(GoCryptFSConfig)
+
 	return !os.IsNotExist(err)
 }
 
