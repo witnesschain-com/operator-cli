@@ -13,5 +13,6 @@
   "gas_limit": "<gas-limit>",
   "tx_receipt_timeout": "<timeout_in_seconds>",
   "expiry": "<expiry_in_days>",
-  "use_encrypted_keys": false
+  "use_encrypted_keys": false,
+  "keys_directory_path": "<optional: path_of_the_keys_directory>"
 }
