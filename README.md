@@ -68,6 +68,7 @@ Default file: config/l1-operator-config.json.template (reference file)
 |tx_receipt_timeout| Timeout in seconds for waiting of tx receipts |
 |expiry| Expiry in days after which the operator signature becomes invalid |
 |use_encrypted_keys| Indicates if you want to store and use the private keys in encrypted format |
+|keys_directory_path| (optional) This is the alternate path where the keys are stored. If this is empty the default path be taken. |
 
 #### for commands - registerWatchtower, deRegisterWatchtower
 Default file: config/l2-operator-config.json.template (reference file)
@@ -84,12 +85,13 @@ Default file: config/l2-operator-config.json.template (reference file)
 |tx_receipt_timeout| Timeout in seconds for waiting of tx receipts |
 |expiry| Expiry in days after which the operator signature becomes invalid |
 |use_encrypted_keys| Indicates if you want to store and use the private keys in encrypted format |
+|keys_directory_path| (optional) This is the alternate path where the keys are stored. If this is empty the default path be taken. |
 
 > **Note:** The same l1-operator-config.json file can be used for the registerWatchtower, deRegisterWatchtower too. But vice-versa is not possible
 
 ## How to use the encrypted keys
 
-To store and use the keys in an encrypted format, use the `use_encrypted_keys` field in the config. If it is set to `true`, the CLI tool will use the keys stored in the encrypted format in the location, `~/.witnesschain/cli/encrypted_keys`. The CLI uses gocrytpfs to achieve this encryption. Read more about it [here](https://github.com/rfjakob/gocryptfs)
+To store and use the keys in an encrypted format, use the `use_encrypted_keys` field in the config. If it is set to `true`, the CLI tool will use the keys stored in the encrypted format in the path given in `keys_directory_path/.encrypted_keys` or the default location, `~/.witnesschain/cli/.encrypted_keys`. The CLI uses gocrytpfs to achieve this encryption. Read more about it [here](https://github.com/rfjakob/gocryptfs)
 
 ### Sub-commands
 The `keys` command has 4 sub-commands. Let's look at them one by one -
@@ -123,7 +125,7 @@ Enter password to mount: **********
    wt1                            30-04-2024 11:36:16
    -------------------------------------------------------
 ```
-4. `delete` - This command will delete a key. This command will need a flag --key-name(-k). The name given will be searched in the `decrypted_keys` and deleted
+4. `delete` - This command will delete a key. This command will need a flag --key-name(-k). The name given will be searched in the `.decrypted_keys` and deleted
 ```
 $ watchtower-operator keys delete -k wt1
 
@@ -155,6 +157,7 @@ Going forward, the CLI will ask for the mount password to decrpyt and use these 
   "gas_limit": 5000000,
   "tx_receipt_timeout": 600,
   "expiry_in_days": 1,
-  "use_encrypted_keys": true
+  "use_encrypted_keys": true,
+  "keys_directory_path": "~/alternate/path/to/your/keys/"
 }
 ```
