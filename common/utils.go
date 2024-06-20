@@ -87,7 +87,7 @@ func GenerateSalt() [32]byte {
 func ValidateAndMount() {
 	if !ValidEncryptedDir() {
 		FatalErrorWithoutUnmount(fmt.Sprintf("%v: %s\n", ErrInvalidEncryptedDirectory,
-			" : check if "+GoCryptFSConfig+" and "+GoCryptFSDiriv+" exist. Or try initiating again after deleting those directories"))
+			" : check if "+GoCryptFSConfig+" exist. Or try initiating again after deleting those directories"))
 	}
 
 	Mount()

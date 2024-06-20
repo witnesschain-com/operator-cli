@@ -24,6 +24,7 @@ type OperatorConfig struct {
 	TxReceiptTimeout        int64          `json:"tx_receipt_timeout"`
 	ExpiryInDays            int64          `json:"expiry_in_days"`
 	UseEncryptedKeys        bool           `json:"use_encrypted_keys"`
+	KeysDirectoryPath       string         `json:"keys_directory_path"`
 }
 
 func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
@@ -39,6 +40,10 @@ func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
 	wc_common.CheckError(err, "Error unmarshaling json data")
 
 	SetDefaultConfigValues(&config)
+
+	if len(config.KeysDirectoryPath) > 0 {
+		wc_common.SetKeysPath(config.KeysDirectoryPath)
+	}
 
 	if config.UseEncryptedKeys {
 		wc_common.UseEncryptedKeys()

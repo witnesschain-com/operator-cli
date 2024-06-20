@@ -11,6 +11,9 @@ import (
 )
 
 var useEncryptedKeys bool = false
+var EncryptedDir string = EncryptedDirName
+var DecryptedDir string = DecryptedDirName
+var GoCryptFSConfig string = GoCryptFSConfigName
 
 func KeysCmd() *cli.Command {
 	var keysCmd = &cli.Command{
@@ -202,6 +205,21 @@ func GetPrivateKeyFromFile(keyName string) string {
 func UseEncryptedKeys() {
 	useEncryptedKeys = true
 	ValidateAndMount()
+}
+
+func SetKeysPath(keysPath string) {
+	if len(keysPath) > 1 {
+		lastChar := keysPath[len(keysPath)-1:]
+		if lastChar == "/" {
+			EncryptedDir = keysPath + EncryptedDirName
+			DecryptedDir = keysPath + DecryptedDirName
+			GoCryptFSConfig = keysPath + GoCryptFSConfigName
+		} else {
+			EncryptedDir = keysPath + "/" + EncryptedDirName
+			DecryptedDir = keysPath + "/" + DecryptedDirName
+			GoCryptFSConfig = keysPath + "/" + GoCryptFSConfigName
+		}
+	}
 }
 
 func GetPrivateKey(key string) string {
