@@ -5,7 +5,7 @@ on:
     inputs:
       version:
         type: string
-        description: Version of the release (eg. 1.0.0-beta, 1.1.2)
+        description: Version of the release (eg. v1.0.0-beta, v1.1.2)
         required: true
       release_type:
         type: boolean
@@ -53,7 +53,7 @@ jobs:
       - name: GH Release
         uses: softprops/action-gh-release@v2.0.5
         with:
+          prerelease: ${{ github.event.inputs.version }}
           tag_name: ${{ env.CLI_VERSION }}
           body_path: RELEASE_NOTES.md
           files: ${{ env.OPERATOR_CLI_DIR }}/${{env.CLI_NAME}}_${{matrix.os-label}}
-    
