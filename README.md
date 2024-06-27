@@ -141,8 +141,11 @@ Enter password to mount: **********
    -------------------------------------------------------
 ```
 
-Going forward, the CLI will ask for the mount password to decrpyt and use these keys. This is how the config will look like when using encrypted keys
+Going forward, the CLI will ask for the mount password to decrpyt and use these keys. This is how the config will look like when using encrypted keys and the keys are present in the default location i.e. `~/.witnesschain/cli/.encrypted_keys`
+> NOTE -
+> If `use_encrypted_keys` is marked `true`, you need to either give the full path(if you want an alternate path to be used) or the name(for the default path) of the gocrptfs encrypted keys as show in the example below
 
+The below example shows how you can use the key names which will be taken from the default path
 ```
 {
   "watchtower_private_keys": [
@@ -157,7 +160,28 @@ Going forward, the CLI will ask for the mount password to decrpyt and use these 
   "gas_limit": 5000000,
   "tx_receipt_timeout": 600,
   "expiry_in_days": 1,
-  "use_encrypted_keys": true,
-  "keys_directory_path": "~/alternate/path/to/your/keys/"
+  "use_encrypted_keys": true
 }
 ```
+
+The below example shows how you can use the key names which will be taken from an alternate path
+```
+{
+  "watchtower_private_keys": [
+    "~/alternate/path/to/your/keys/.encrypted_keys/wt1"
+  ],
+  "operator_private_key": "~/alternate/path/to/your/keys/.encrypted_keys/op1",
+  "operator_registry_address": "0xEf1a89841fd189ba28e780A977ca70eb1A5e985D",
+  "witnesshub_address": "0xD25c2c5802198CB8541987b73A8db4c9BCaE5cC7",
+  "avs_directory_address": "0x135dda560e946695d6f155dacafc6f1f25c1f5af",
+  "eth_rpc_url": "<Mainnet RPC URL>",
+  "chain_id": 1,
+  "gas_limit": 5000000,
+  "tx_receipt_timeout": 600,
+  "expiry_in_days": 1,
+  "use_encrypted_keys": true,
+}
+```
+
+> NOTE -
+> If you are using an alternate path, all the keys present in the config have to be present in the same path. You cannot save the keys in different locations in the same config

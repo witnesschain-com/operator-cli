@@ -1,17 +1,16 @@
 {
   "watchtower_private_keys": [
-    "<WatchTower1-private-key-name>",
-    "<WatchTower2-private-key-name>",
-    "<WatchTower3-private-key-name>"
+    "<alternate-path(optional) + WatchTower1-private-key-name>",
+    "<alternate-path(optional) + WatchTower2-private-key-name>",
+    "<alternate-path(optional) + WatchTower3-private-key-name>"
   ],
-  "operator_private_key": "<operator-private-key-name>",
+  "operator_private_key": "<alternate-path(optional) + operator-private-key-name>",
   "operator_registry_address": "0xEf1a89841fd189ba28e780A977ca70eb1A5e985D",
   "eth_rpc_url": "<Mainnet RPC URL>",
   "chain_id": 1,
   "gas_limit": "<gas-limit>",
   "tx_receipt_timeout": "<timeout_in_seconds>",
   "expiry": "<expiry_in_days>",
-  "use_encrypted_keys": false,
-  "keys_directory_path": "<optional: path_of_the_keys_directory>"
+  "use_encrypted_keys": false
 }
 

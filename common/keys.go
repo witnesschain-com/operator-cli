@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -11,6 +12,7 @@ import (
 )
 
 var useEncryptedKeys bool = false
+var isFullPath bool = false
 var EncryptedDir string = EncryptedDirName
 var DecryptedDir string = DecryptedDirName
 var GoCryptFSConfig string = GoCryptFSConfigName
@@ -207,24 +209,34 @@ func UseEncryptedKeys() {
 	ValidateAndMount()
 }
 
-func SetKeysPath(keysPath string) {
-	if len(keysPath) > 1 {
-		lastChar := keysPath[len(keysPath)-1:]
-		if lastChar == "/" {
-			EncryptedDir = keysPath + EncryptedDirName
-			DecryptedDir = keysPath + DecryptedDirName
-			GoCryptFSConfig = keysPath + GoCryptFSConfigName
-		} else {
-			EncryptedDir = keysPath + "/" + EncryptedDirName
-			DecryptedDir = keysPath + "/" + DecryptedDirName
-			GoCryptFSConfig = keysPath + "/" + GoCryptFSConfigName
-		}
+func ProcessConfigKeyPath(keyPath string) {
+	dir, file := filepath.Split(keyPath)
+
+	if file == keyPath && dir == "." {
+		fmt.Printf("Using the default key path : %s\n", EncryptedDir)
+		// this means they have given only the key name only,
+		// do nothing and use default path
+		return
 	}
+
+	// go to the grand parent directory of the key path to get the .encrypted_keys path
+	parentPath := filepath.Dir(filepath.Dir(dir))
+
+	EncryptedDir = filepath.Join(parentPath, EncryptedDirName)
+	DecryptedDir = filepath.Join(parentPath, DecryptedDirName)
+	GoCryptFSConfig = filepath.Join(parentPath, GoCryptFSConfigName)
+	isFullPath = true
+
+	fmt.Printf("Using the key path : %s\n", EncryptedDir)
 }
 
 func GetPrivateKey(key string) string {
 	if useEncryptedKeys {
-		return GetPrivateKeyFromFile(key)
+		keyName := key
+		if isFullPath {
+			_, keyName = filepath.Split(key)
+		}
+		return GetPrivateKeyFromFile(keyName)
 	}
 	return key
 }

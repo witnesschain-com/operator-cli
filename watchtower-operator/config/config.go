@@ -24,7 +24,6 @@ type OperatorConfig struct {
 	TxReceiptTimeout        int64          `json:"tx_receipt_timeout"`
 	ExpiryInDays            int64          `json:"expiry_in_days"`
 	UseEncryptedKeys        bool           `json:"use_encrypted_keys"`
-	KeysDirectoryPath       string         `json:"keys_directory_path"`
 }
 
 func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
@@ -41,11 +40,10 @@ func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
 
 	SetDefaultConfigValues(&config)
 
-	if len(config.KeysDirectoryPath) > 0 {
-		wc_common.SetKeysPath(config.KeysDirectoryPath)
-	}
-
 	if config.UseEncryptedKeys {
+		// get the path from the first key, as others should be same
+		// will not work with different paths
+		wc_common.ProcessConfigKeyPath(config.WatchtowerPrivateKeys[0])
 		wc_common.UseEncryptedKeys()
 	}
 
