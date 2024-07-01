@@ -40,6 +40,7 @@ func InitCmd() *cli.Command {
 			&InsecureFlag,
 		},
 		Action: func(cCtx *cli.Context) error {
+			CheckIfGocryptfsIsInstalled()
 			InitKeyStore(cCtx)
 			return nil
 		},
@@ -115,7 +116,6 @@ func CreateKeyCmd(cCtx *cli.Context) {
 	CheckError(err, "Error validating key name")
 
 	CreateKey(keyName)
-	fmt.Printf("Created key: %s\n", keyName)
 }
 
 func DeleteKeyCmd(cCtx *cli.Context) {
@@ -124,8 +124,6 @@ func DeleteKeyCmd(cCtx *cli.Context) {
 	CheckError(err, "Error validating key name")
 
 	DeleteKey(keyName)
-
-	fmt.Printf("Deleted key: %s\n", keyName)
 }
 
 func ListKeyCmd() {
@@ -167,14 +165,30 @@ func ValidateKeyName(keyName string) error {
 
 func CreateKey(keyName string) {
 	keyFile := DecryptedDir + "/" + keyName
+
+	_, err := os.Stat(keyFile)
+	if !os.IsNotExist(err) {
+		fmt.Printf("Key already exists, do you want to overwrite? (y/n): ")
+		var response string
+		fmt.Scanln(&response)
+
+		if strings.ToLower(response) != "y" {
+			return
+		}
+	}
+
 	privateKey := GetPrivateKeyFromUser()
 	CreateKeyFileAndStoreKey(keyFile, privateKey)
+
+	fmt.Printf("Created key: %s\n", keyName)
 }
 
 func DeleteKey(keyName string) {
 	keyFile := DecryptedDir + "/" + keyName
 	err := os.Remove(keyFile)
 	CheckError(err, "Error deleting key\n")
+
+	fmt.Printf("Deleted key: %s\n", keyName)
 }
 
 func GetPrivateKeyFromUser() string {

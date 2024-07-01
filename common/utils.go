@@ -85,6 +85,8 @@ func GenerateSalt() [32]byte {
 }
 
 func ValidateAndMount() {
+	CheckIfGocryptfsIsInstalled()
+
 	if !ValidEncryptedDir() {
 		FatalErrorWithoutUnmount(fmt.Sprintf("%v: %s\n", ErrInvalidEncryptedDirectory,
 			" : check if "+GoCryptFSConfig+" exist. Or try initiating again after deleting those directories"))
@@ -176,4 +178,11 @@ func IsOperatorRegistered(witnessHubAddress common.Address, operator common.Addr
 	status, err := avsDirectory.AvsOperatorStatus(&bind.CallOpts{}, witnessHubAddress, operator)
 	CheckError(err, "Checking operator status failed")
 	return status != 0
+}
+
+func CheckIfGocryptfsIsInstalled() {
+	cmd := exec.Command("gocryptfs", "--version")
+	err := cmd.Run()
+
+	CheckErrorWithoutUnmount(err, "Check if gocryptfs is installed")
 }
