@@ -43,11 +43,13 @@ func RegisterWatchtower(config *operator_config.OperatorConfig) {
 
 
 	// operatorVault
-	operatorPrivateKey := new(ecdsa.PrivateKey)
+	var operatorPrivateKey *ecdsa.PrivateKey
 	if len(config.OperatorPrivateKey) != 0 {
 		operatorPrivateKey, err = crypto.HexToECDSA(config.OperatorPrivateKey)
 		wc_common.CheckError(err, "unable to import operator privateKey")
 	}
+
+	fmt.Println("keystore args:", config.OperatorAddress, chainID, operatorPrivateKey, config.Endpoint)
 	
 	operatorVault, err := keystore.SetupVault(config.OperatorAddress, chainID, operatorPrivateKey, config.Endpoint)
 	if err != nil {
@@ -69,12 +71,12 @@ func RegisterWatchtower(config *operator_config.OperatorConfig) {
 
 		// watchtowerVault
 		// watchtowerPrivateKey, watchtowerAddress := wc_common.GetECDSAPrivateAndPublicKey(wc_common.GetPrivateKey(watchTowerPkName))
-		privKey := new(ecdsa.PrivateKey)
+		var privKey *ecdsa.PrivateKey
 		if len(config.WatchtowerPrivateKeys) != 0 {
 			privKey, err = crypto.HexToECDSA(config.WatchtowerPrivateKeys[i])
 			wc_common.CheckError(err, "unable to import PrivateKey")
 		}
-		watchtowerVault, err := keystore.SetupVault(watchtowerAddress, &config.ChainId, privKey, config.Endpoint)
+		watchtowerVault, err := keystore.SetupVault(watchtowerAddress, chainID, privKey, config.Endpoint)
 		wc_common.CheckError(err, "unable to setup watchtower vault")
 
 		if wc_common.IsWatchtowerRegistered(watchtowerAddress, operatorRegistry) {

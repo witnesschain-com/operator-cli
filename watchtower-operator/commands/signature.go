@@ -44,9 +44,9 @@ func SignOperatorAddress(client *ethclient.Client, vault *keystore.Vault, Operat
 	paddedExpiry := wc_common.GetPaddedValue(expiry.Bytes())
 
 	encodedData := append(paddedAddr[:], paddedExpiry[:]...)
-	fullSignature, err := vault.SignData(encodedData)
+	hashedMessage := crypto.Keccak256(encodedData)
+	fullSignature, err := vault.SignData(hashedMessage)
 	wc_common.CheckError(err, "unable to sign operator address")
-	// hashedMessage := crypto.Keccak256(encodedData)
 	// hashedEthMessage := crypto.Keccak256(append([]byte("\x19Ethereum Signed Message:\n32"), hashedMessage...))
 
 	// signature, err := crypto.Sign(hashedEthMessage, privateKey)
