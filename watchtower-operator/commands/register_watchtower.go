@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/witnesschain-com/diligencewatchtower-client/keystore"
 	wc_common "github.com/witnesschain-com/operator-cli/common"
@@ -83,7 +84,7 @@ func RegisterWatchtower(config *operator_config.OperatorConfig) {
 
 		// watchtower vault
 		signedMessage := SignOperatorAddress(client, watchtowerVault, config.OperatorAddress, *expiry)
-		fmt.Println(signedMessage)
+		fmt.Println("signature: ", hexutil.Encode(signedMessage))
 
 		regTx, err := operatorRegistry.RegisterWatchtowerAsOperator(transactOpts, watchtowerAddress, expiry, signedMessage)
 		wc_common.CheckError(err, "Registering watchtower as operator failed")
