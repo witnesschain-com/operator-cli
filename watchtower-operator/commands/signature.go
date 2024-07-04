@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"math/big"
 
+	"github.com/witnesschain-com/diligencewatchtower-client/keystore"
 	wc_common "github.com/witnesschain-com/operator-cli/common"
 	"github.com/witnesschain-com/operator-cli/common/bindings/AvsDirectory"
 	"github.com/witnesschain-com/operator-cli/common/bindings/WitnessHub"
@@ -38,21 +39,23 @@ func GetOpertorSignature(client *ethclient.Client, avsDirectory *AvsDirectory.Av
 	return operatorSignature
 }
 
-func SignOperatorAddress(client *ethclient.Client, privateKey *ecdsa.PrivateKey, OperatorAddress common.Address, expiry big.Int) []byte {
+func SignOperatorAddress(client *ethclient.Client, vault *keystore.Vault, OperatorAddress common.Address, expiry big.Int) []byte {
 	paddedAddr := wc_common.GetPaddedValue(OperatorAddress.Bytes())
 	paddedExpiry := wc_common.GetPaddedValue(expiry.Bytes())
 
 	encodedData := append(paddedAddr[:], paddedExpiry[:]...)
-	hashedMessage := crypto.Keccak256(encodedData)
-	hashedEthMessage := crypto.Keccak256(append([]byte("\x19Ethereum Signed Message:\n32"), hashedMessage...))
+	fullSignature, err := vault.SignData(encodedData)
+	wc_common.CheckError(err, "unable to sign operator address")
+	// hashedMessage := crypto.Keccak256(encodedData)
+	// hashedEthMessage := crypto.Keccak256(append([]byte("\x19Ethereum Signed Message:\n32"), hashedMessage...))
 
-	signature, err := crypto.Sign(hashedEthMessage, privateKey)
-	wc_common.CheckError(err, "Signing operator address failed")
+	// signature, err := crypto.Sign(hashedEthMessage, privateKey)
+	// wc_common.CheckError(err, "Signing operator address failed")
 
-	v := new(big.Int).SetBytes(signature[64:])
-	v.Add(v, big.NewInt(27))
+	// v := new(big.Int).SetBytes(signature[64:])
+	// v.Add(v, big.NewInt(27))
 
-	// Construct the full signature (r, s, v)
-	fullSignature := append(signature[:64], v.Bytes()...)
+	// // Construct the full signature (r, s, v)
+	// fullSignature := append(signature[:64], v.Bytes()...)
 	return fullSignature
 }

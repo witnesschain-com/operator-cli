@@ -9,12 +9,15 @@ import (
 	wc_common "github.com/witnesschain-com/operator-cli/common"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/urfave/cli/v2"
 )
 
 type OperatorConfig struct {
 	WatchtowerPrivateKeys   []string       `json:"watchtower_private_keys"`
+	WatchtowerAddresses     []string       `json:"watchtower_addresses"`
 	OperatorPrivateKey      string         `json:"operator_private_key"`
+	OperatorAddress         common.Address `json:"operator_address"`
 	OperatorRegistryAddress common.Address `json:"operator_registry_address"`
 	WitnessHubAddress       common.Address `json:"witnesshub_address"`
 	AvsDirectoryAddress     common.Address `json:"avs_directory_address"`
@@ -24,6 +27,7 @@ type OperatorConfig struct {
 	TxReceiptTimeout        int64          `json:"tx_receipt_timeout"`
 	ExpiryInDays            int64          `json:"expiry_in_days"`
 	UseEncryptedKeys        bool           `json:"use_encrypted_keys"`
+	Endpoint                string         `json:"external_signer_endpoint"`
 }
 
 func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
@@ -45,6 +49,20 @@ func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
 		// will not work with different paths
 		wc_common.ProcessConfigKeyPath(config.WatchtowerPrivateKeys[0])
 		wc_common.UseEncryptedKeys()
+	}
+
+	if len(config.OperatorPrivateKey) != 0 {
+		priv, err := crypto.HexToECDSA(config.OperatorPrivateKey)
+		wc_common.CheckError(err, "unable to convert privateKey")
+		config.OperatorAddress =  crypto.PubkeyToAddress(priv.PublicKey)
+	}
+
+	if len(config.WatchtowerPrivateKeys) != 0 {
+		for _, privKey := range config.WatchtowerPrivateKeys{
+			key, err := crypto.HexToECDSA(privKey)
+			wc_common.CheckError(err, "unable to convert watchtower privatekey")
+			config.WatchtowerAddresses = append(config.WatchtowerAddresses, crypto.PubkeyToAddress(key.PublicKey).Hex())
+		}
 	}
 
 	return &config
