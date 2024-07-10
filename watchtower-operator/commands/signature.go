@@ -47,15 +47,5 @@ func SignOperatorAddress(client *ethclient.Client, vault *keystore.Vault, Operat
 	hashedMessage := crypto.Keccak256(encodedData)
 	fullSignature, err := vault.SignData(hashedMessage)
 	wc_common.CheckError(err, "unable to sign operator address")
-	// hashedEthMessage := crypto.Keccak256(append([]byte("\x19Ethereum Signed Message:\n32"), hashedMessage...))
-
-	// signature, err := crypto.Sign(hashedEthMessage, privateKey)
-	// wc_common.CheckError(err, "Signing operator address failed")
-
-	// v := new(big.Int).SetBytes(signature[64:])
-	// v.Add(v, big.NewInt(27))
-
-	// // Construct the full signature (r, s, v)
-	// fullSignature := append(signature[:64], v.Bytes()...)
 	return fullSignature
 }
