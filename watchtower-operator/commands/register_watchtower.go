@@ -84,9 +84,7 @@ func RegisterWatchtower(config *operator_config.OperatorConfig) {
 			continue
 		}
 
-		// watchtower vault
-		signedMessage := SignOperatorAddress(client, watchtowerVault, config.OperatorAddress, *expiry)
-		fmt.Println("signature: ", hexutil.Encode(signedMessage))
+		signedMessage := SignOperatorAddress(client, watchtowerVault, config.OperatorAddress, expiry)
 
 		regTx, err := operatorRegistry.RegisterWatchtowerAsOperator(transactOpts, watchtowerAddress, expiry, signedMessage)
 		wc_common.CheckError(err, "Registering watchtower as operator failed")

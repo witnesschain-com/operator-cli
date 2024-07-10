@@ -39,7 +39,7 @@ func GetOpertorSignature(client *ethclient.Client, avsDirectory *AvsDirectory.Av
 	return operatorSignature
 }
 
-func SignOperatorAddress(client *ethclient.Client, vault *keystore.Vault, OperatorAddress common.Address, expiry big.Int) []byte {
+func SignOperatorAddress(client *ethclient.Client, vault *keystore.Vault, OperatorAddress common.Address, expiry *big.Int) []byte {
 	paddedAddr := wc_common.GetPaddedValue(OperatorAddress.Bytes())
 	paddedExpiry := wc_common.GetPaddedValue(expiry.Bytes())
 
