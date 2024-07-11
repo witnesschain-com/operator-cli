@@ -23,12 +23,6 @@ type ChainConfig struct{
 	WitnessHubAddress       common.Address
 	AVSDirectoryAddress     common.Address
 	ChainID                 big.Int
-
-  // "operator_registry_address": "0xEf1a89841fd189ba28e780A977ca70eb1A5e985D",
-  // "witnesshub_address": "0xD25c2c5802198CB8541987b73A8db4c9BCaE5cC7",
-  // "avs_directory_address": "0x135dda560e946695d6f155dacafc6f1f25c1f5af",
-  // "eth_rpc_url": "https://blue-orangutan-rpc.eu-north-2.gateway.fm/",
-  // "chain_id": 1237146866,
 }
 
 var BlueOrangutan = ChainConfig {

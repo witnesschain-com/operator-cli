@@ -1,8 +1,10 @@
 package operator_commands
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/witnesschain-com/diligencewatchtower-client/keystore"
 	wc_common "github.com/witnesschain-com/operator-cli/common"
 	"github.com/witnesschain-com/operator-cli/common/bindings/OperatorRegistry"
 	operator_config "github.com/witnesschain-com/operator-cli/watchtower-operator/config"
@@ -29,32 +31,37 @@ func DeRegisterWatchtowerCmd() *cli.Command {
 
 func DeRegisterWatchtower(config *operator_config.OperatorConfig) {
 	client := wc_common.ConnectToUrl(config.EthRPCUrl)
+	chainID, err := client.ChainID(context.Background())
+	wc_common.CheckError(err, "failed to retrive chain ID")
+	fmt.Println("chainID: " + chainID.String())
 
-	operatorRegistry, err := OperatorRegistry.NewOperatorRegistry(config.OperatorRegistryAddress, client)
+	operatorRegistry, err := OperatorRegistry.NewOperatorRegistry(wc_common.NetworkConfig[chainID.String()].OperatorRegistryAddress, client)
 	wc_common.CheckError(err, "Instantiating OperatorRegistry contract failed")
 
-	operatorPrivateKey, operatorAddress := wc_common.GetECDSAPrivateAndPublicKey(wc_common.GetPrivateKey(config.OperatorPrivateKey))
+	vc := &keystore.VaultConfig{Address: config.OperatorAddress, ChainID: chainID, PrivateKey: config.OperatorPrivateKey, Endpoint: config.Endpoint}
+	operatorVault, err := keystore.SetupVault(vc)
+	if err != nil {
+		wc_common.CheckError(err, "unable to setup vault")
+	}
 
-	if !wc_common.IsOperatorWhitelisted(operatorAddress, operatorRegistry) {
-		fmt.Printf("Operator %s is not whitelisted\n", operatorAddress.Hex())
+	if !wc_common.IsOperatorWhitelisted(config.OperatorAddress, operatorRegistry) {
+		fmt.Printf("Operator %s is not whitelisted\n", config.OperatorAddress.Hex())
 		return
 	}
 
-	deRegTransactOpts := wc_common.PrepareTransactionOptions(client, config.ChainId, config.GasLimit, operatorPrivateKey)
+	transactOpts := operatorVault.NewTransactOpts(chainID)
 
-	for _, watchTowerPkName := range config.WatchtowerPrivateKeys {
 
-		_, watchtowerAddress := wc_common.GetECDSAPrivateAndPublicKey(wc_common.GetPrivateKey(watchTowerPkName))
-
-		if !wc_common.IsWatchtowerRegistered(watchtowerAddress, operatorRegistry) {
-			fmt.Printf("Watchtower %s is not registered\n", watchtowerAddress.Hex())
+	for _, watchtowerAddress := range config.WatchtowerAddresses {
+		fmt.Println("Deregister watchtower: " + watchtowerAddress.Hex())
+		if wc_common.IsWatchtowerRegistered(watchtowerAddress, operatorRegistry) == false {
+			fmt.Printf("Watchtower %s is already deRegistered\n", watchtowerAddress.Hex())
 			continue
 		}
-		deRegTransactOpts.Nonce = wc_common.GetLatestNonce(client, operatorPrivateKey)
 
-		deRegTx, err := operatorRegistry.DeRegister(deRegTransactOpts, watchtowerAddress)
-		wc_common.CheckError(err, "Deregister failed")
-		fmt.Printf("Tx sent: %s\n", deRegTx.Hash().Hex())
-		wc_common.WaitForTransactionReceipt(client, deRegTx, config.TxReceiptTimeout)
+		regTx, err := operatorRegistry.DeRegister(transactOpts, watchtowerAddress)
+		wc_common.CheckError(err, "Registering watchtower as operator failed")
+		fmt.Printf("Tx sent: %s\n", regTx.Hash().Hex())
+		wc_common.WaitForTransactionReceipt(client, regTx, config.TxReceiptTimeout)
 	}
 }

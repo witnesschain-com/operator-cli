@@ -268,7 +268,7 @@ func GetPrivateKey(key string) string {
 func LoadPrivateKey(path string) (*ecdsa.PrivateKey, error) {
 	ProcessConfigKeyPath(path)
 
-	fmt.Println("load " + path)
+	fmt.Println("loading " + path)
 	dir := filepath.Dir(path)
 	KeyfileName := filepath.Base(path)
 	EncryptedDir = dir
@@ -277,9 +277,6 @@ func LoadPrivateKey(path string) (*ecdsa.PrivateKey, error) {
 	data, err := os.ReadFile(DecryptedDir + "/" + KeyfileName)
 	CheckError(err, "Error reading key file" + path)
 	Unmount()
-
-	fmt.Println("privateKey" + string(data))
-	fmt.Println(data)
 
 	priv, err := crypto.HexToECDSA(string(data))
 	if err != nil {
