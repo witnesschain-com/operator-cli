@@ -32,8 +32,16 @@ var BlueOrangutan = ChainConfig {
 	ChainID: *big.NewInt(1237146866),
 }
 
+var Holesky = ChainConfig {
+	OperatorRegistryAddress: common.HexToAddress("0x708CBDDdab358c1fa8efB82c75bB4a116F316Def"),
+	WitnessHubAddress: common.HexToAddress("0xa987EC494b13b21A8a124F8Ac03c9F530648C87D"),
+	AVSDirectoryAddress: common.HexToAddress("0xc697aF7aF3C8c5Ce614d8BC0F252377233D9588a"),
+	ChainID: *big.NewInt(17000),
+}
+
 var NetworkConfig = map[string] ChainConfig {
 	"1237146866": BlueOrangutan,
+	"17000": Holesky,
 }
 
 

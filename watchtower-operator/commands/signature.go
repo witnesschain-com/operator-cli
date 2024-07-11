@@ -1,7 +1,7 @@
 package operator_commands
 
 import (
-	"crypto/ecdsa"
+	"fmt"
 	"math/big"
 
 	"github.com/witnesschain-com/diligencewatchtower-client/keystore"
@@ -12,27 +12,22 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func GetOpertorSignature(client *ethclient.Client, avsDirectory *AvsDirectory.AvsDirectory, witnessHubAddress common.Address, operatorPrivateKey *ecdsa.PrivateKey, operatorAddress common.Address, expiry *big.Int) WitnessHub.ISignatureUtilsSignatureWithSaltAndExpiry {
+func GetOpertorSignature(client *ethclient.Client, avsDirectory *AvsDirectory.AvsDirectory, witnessHubAddress common.Address, vault *keystore.Vault, operatorAddress common.Address, expiry *big.Int) WitnessHub.ISignatureUtilsSignatureWithSaltAndExpiry {
 	salt := wc_common.GenerateSalt()
 
 	//ON AVS DIRECTORY
 	digestHash, err := avsDirectory.CalculateOperatorAVSRegistrationDigestHash(&bind.CallOpts{}, operatorAddress, witnessHubAddress, salt, expiry)
 	wc_common.CheckError(err, "Digest hash calculation failed")
 
-	signature, err := crypto.Sign(digestHash[:], operatorPrivateKey)
+	signature, err := vault.SignData(digestHash[:])
+
 	wc_common.CheckError(err, "Signing the digest hash failed")
 
-	v := new(big.Int).SetBytes(signature[64:])
-	v.Add(v, big.NewInt(27))
-
-	// Construct the full signature (r, s, v)
-	fullSignature := append(signature[:64], v.Bytes()...)
 	operatorSignature := WitnessHub.ISignatureUtilsSignatureWithSaltAndExpiry{
-		Signature: fullSignature,
+		Signature: signature,
 		Salt:      salt,
 		Expiry:    expiry,
 	}
@@ -40,8 +35,9 @@ func GetOpertorSignature(client *ethclient.Client, avsDirectory *AvsDirectory.Av
 	return operatorSignature
 }
 
-func SignOperatorAddress(client *ethclient.Client, operatorRegistry *OperatorRegistry.OperatorRegistry, vault *keystore.Vault, OperatorAddress common.Address, salt [32]byte, expiry big.Int) []byte {
-	digestHash, err := operatorRegistry.CalculateWatchtowerRegistrationMessageHash(&bind.CallOpts{}, OperatorAddress, salt, &expiry)
+func SignOperatorAddress(client *ethclient.Client, operatorRegistry *OperatorRegistry.OperatorRegistry, vault *keystore.Vault, OperatorAddress common.Address, salt [32]byte, expiry *big.Int) []byte {
+	fmt.Printf("SignOperatorAddress: %v %v %v", OperatorAddress, salt, expiry)
+	digestHash, err := operatorRegistry.CalculateWatchtowerRegistrationMessageHash(&bind.CallOpts{}, OperatorAddress, salt, expiry)
 	fullSignature, err := vault.SignData(digestHash[:])
 	wc_common.CheckError(err, "unable to sign operator address")
 	return fullSignature

@@ -60,6 +60,7 @@ func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
 			key, err := crypto.HexToECDSA(privKey)
 			wc_common.CheckError(err, "unable to convert watchtower privatekey")
 			config.WatchtowerAddresses = append(config.WatchtowerAddresses, crypto.PubkeyToAddress(key.PublicKey))
+			config.WatchtowerPrivateKeys = append(config.WatchtowerPrivateKeys, key)
 		}
 	}
 

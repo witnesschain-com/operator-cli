@@ -225,7 +225,7 @@ func UseEncryptedKeys() {
 	if m_useEncryptedKeys == true {
 		return
 	}
-	useEncryptedKeys = true
+	m_useEncryptedKeys = true
 	ValidateAndMount()
 }
 
@@ -271,10 +271,10 @@ func LoadPrivateKey(path string) (*ecdsa.PrivateKey, error) {
 	fmt.Println("loading " + path)
 	dir := filepath.Dir(path)
 	KeyfileName := filepath.Base(path)
-	EncryptedDir = dir
+	m_encryptedDir = dir
 
 	Mount()
-	data, err := os.ReadFile(DecryptedDir + "/" + KeyfileName)
+	data, err := os.ReadFile(m_decryptedDir + "/" + KeyfileName)
 	CheckError(err, "Error reading key file" + path)
 	Unmount()
 

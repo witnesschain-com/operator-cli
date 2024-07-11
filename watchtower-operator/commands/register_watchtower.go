@@ -62,7 +62,12 @@ func RegisterWatchtower(config *operator_config.OperatorConfig) {
 			watchtowerPrivateKey = config.WatchtowerPrivateKeys[i]
 		}
 
-		vc := &keystore.VaultConfig{Address: watchtowerAddress, ChainID: chainID, PrivateKey: watchtowerPrivateKey, Endpoint: config.Endpoint, GocryptfsKey: config.WatchtowerEncryptedKeys[i]}
+		var gocryptfsKey string
+		if len(config.WatchtowerEncryptedKeys) != 0 {
+			gocryptfsKey = config.WatchtowerEncryptedKeys[i]
+		}
+
+		vc := &keystore.VaultConfig{Address: watchtowerAddress, ChainID: chainID, PrivateKey: watchtowerPrivateKey, Endpoint: config.Endpoint, GocryptfsKey: gocryptfsKey}
 		watchtowerVault, err := keystore.SetupVault(vc)
 		wc_common.CheckError(err, "unable to setup watchtower vault")
 
@@ -72,7 +77,7 @@ func RegisterWatchtower(config *operator_config.OperatorConfig) {
 		}
 
 		salt := wc_common.GenerateSalt()
-		signedMessage := SignOperatorAddress(client, operatorRegistry, watchtowerVault, config.OperatorAddress, salt, *expiry)
+		signedMessage := SignOperatorAddress(client, operatorRegistry, watchtowerVault, config.OperatorAddress, salt, expiry)
 		regTx, err := operatorRegistry.RegisterWatchtowerAsOperator(transactOpts, watchtowerAddress, salt, expiry, signedMessage)
 		wc_common.CheckError(err, "Registering watchtower as operator failed")
 		fmt.Printf("Tx sent: %s\n", regTx.Hash().Hex())

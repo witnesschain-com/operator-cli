@@ -32,8 +32,8 @@ func main() {
 		wc_common.KeysCmd(),
 		operator_commands.RegisterWatchtowerCmd(),
 		operator_commands.DeRegisterWatchtowerCmd(),
-		// operator_commands.RegisterOperatorToAVSCmd(),
-		// operator_commands.DeRegisterOperatorFromAVSCmd(),
+		operator_commands.RegisterOperatorToAVSCmd(),
+		operator_commands.DeRegisterOperatorFromAVSCmd(),
 	}
 
 	if err := app.Run(os.Args); err != nil {
