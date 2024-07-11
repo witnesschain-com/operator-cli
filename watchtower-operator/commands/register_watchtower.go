@@ -83,7 +83,6 @@ func RegisterWatchtower(config *operator_config.OperatorConfig) {
 			continue
 		}
 
-		// watchtower vault
 		salt := wc_common.GenerateSalt()
 		signedMessage := SignOperatorAddress(client, operatorRegistry, watchtowerVault, config.OperatorAddress, salt, *expiry)
 
