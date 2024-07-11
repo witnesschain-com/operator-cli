@@ -1,2 +1,4 @@
 .encrypted_keys
 .decrypted_keys
+main
+watchtower-operator/watchtower-operator
