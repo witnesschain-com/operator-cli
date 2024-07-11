@@ -19,6 +19,7 @@ import (
 )
 
 var isMounted bool = false
+var password string = ""
 
 func ConnectToUrl(url string) *ethclient.Client {
 	client, err := ethclient.Dial(url)
@@ -142,7 +143,9 @@ func CreateDirectory(path string) {
 
 func RunCommandWithPassword(cmd *exec.Cmd, desc string, insecure bool) {
 	fmt.Printf("Enter password to %s: ", desc)
-	password := ReadHiddenInput()
+	if len(password) == 0 {
+		password = ReadHiddenInput()
+	}
 
 	if !insecure {
 		ValidatePassword(password)

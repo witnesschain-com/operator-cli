@@ -247,6 +247,8 @@ func GetPrivateKey(key string) string {
 }
 
 func LoadPrivateKey(path string) (*ecdsa.PrivateKey, error) {
+	ProcessConfigKeyPath(path)
+
 	fmt.Println("load " + path)
 	dir := filepath.Dir(path)
 	KeyfileName := filepath.Base(path)
