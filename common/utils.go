@@ -31,6 +31,8 @@ type MountResult struct {
 	Filesystems []Filesystem `json:"filesystems"`
 }
 
+var password string
+
 func ConnectToUrl(url string) *ethclient.Client {
 	client, err := ethclient.Dial(url)
 	CheckError(err, "Connection to RPC failed")
@@ -195,7 +197,9 @@ func CreateDirectory(path string) {
 
 func RunCommandWithPassword(cmd *exec.Cmd, desc string, insecure bool) {
 	fmt.Printf("Enter password to %s: ", desc)
-	password := ReadHiddenInput()
+	if len(password) == 0 {
+		password = ReadHiddenInput()
+	}
 
 	if !insecure {
 		ValidatePassword(password)
