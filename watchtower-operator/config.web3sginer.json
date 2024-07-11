@@ -1,0 +1,19 @@
+{
+  "watchtower_private_keys": [
+  ],
+  "watchtower_addresses": [
+	  "0x621593b9ae270c418e9190714e7786ba69398834"
+  ],
+  "operator_private_key": "",
+  "operator_address": "0x621593b9ae270c418e9190714e7786ba69398834",
+  "operator_registry_address": "0x26710e60A36Ace8A44e1C3D7B33dc8B80eAb6cb7",
+  "witnesshub_address": "0xD25c2c5802198CB8541987b73A8db4c9BCaE5cC7",
+  "avs_directory_address": "0x135dda560e946695d6f155dacafc6f1f25c1f5af",
+  "eth_rpc_url": "https://blue-orangutan-rpc.eu-north-2.gateway.fm/",
+  "chain_id": 1237146866,
+  "gas_limit": 10000000,
+  "tx_receipt_timeout": 10,
+  "expiry": "50",
+  "use_encrypted_keys": false,
+  "external_signer_endpoint": "http://localhost:9000"
+}

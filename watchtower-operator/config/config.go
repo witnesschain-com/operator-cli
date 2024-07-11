@@ -59,7 +59,9 @@ func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
 	}
 
 	if len(config.WatchtowerPrivateKeys) != 0 {
+		fmt.Println(config.WatchtowerAddresses)
 		for _, privKey := range config.WatchtowerPrivateKeys{
+			fmt.Println(privKey)
 			key, err := crypto.HexToECDSA(privKey)
 			wc_common.CheckError(err, "unable to convert watchtower privatekey")
 			config.WatchtowerAddresses = append(config.WatchtowerAddresses, crypto.PubkeyToAddress(key.PublicKey).Hex())
