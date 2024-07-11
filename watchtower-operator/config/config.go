@@ -16,8 +16,10 @@ import (
 type OperatorConfig struct {
 	WatchtowerPrivateKeys   []string       `json:"watchtower_private_keys"`
 	WatchtowerAddresses     []string       `json:"watchtower_addresses"`
+	WatchtowerEncryptedKeys []string       `json:"watchtower_encrypted_keys"`
 	OperatorPrivateKey      string         `json:"operator_private_key"`
 	OperatorAddress         common.Address `json:"operator_address"`
+	OperatorEncryptedKey    string         `json:"operator_encrypted_key"`
 	OperatorRegistryAddress common.Address `json:"operator_registry_address"`
 	WitnessHubAddress       common.Address `json:"witnesshub_address"`
 	AvsDirectoryAddress     common.Address `json:"avs_directory_address"`
@@ -38,16 +40,15 @@ func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
 	wc_common.CheckError(err, "Error reading json file")
 
 	// Parse the json data into a struct
-	var config OperatorConfig
+	var config OperatorConfig = OperatorConfig{ExpiryInDays: 1, TxReceiptTimeout: 300, GasLimit: 300000}
 	err = json.Unmarshal(data, &config)
 	wc_common.CheckError(err, "Error unmarshaling json data")
 
-	SetDefaultConfigValues(&config)
 
-	if config.UseEncryptedKeys {
+	if len(config.WatchtowerEncryptedKeys) != 0 {
 		// get the path from the first key, as others should be same
 		// will not work with different paths
-		wc_common.ProcessConfigKeyPath(config.WatchtowerPrivateKeys[0])
+		wc_common.ProcessConfigKeyPath(config.WatchtowerEncryptedKeys[0])
 		wc_common.UseEncryptedKeys()
 	}
 
@@ -68,18 +69,4 @@ func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
 	}
 
 	return &config
-}
-
-func SetDefaultConfigValues(config *OperatorConfig) {
-	if config.ExpiryInDays == 0 {
-		config.ExpiryInDays = 1 // 1 day
-	}
-
-	if config.TxReceiptTimeout == 0 {
-		config.TxReceiptTimeout = 5 * 60 // 5 minutes
-	}
-
-	if config.GasLimit == 0 {
-		config.GasLimit = 300000
-	}
 }

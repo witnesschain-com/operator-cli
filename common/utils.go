@@ -94,6 +94,10 @@ func ValidateAndMount() {
 }
 
 func Mount() {
+	if isMounted == true {
+		return
+	}
+
 	mountCmd := exec.Command("gocryptfs", EncryptedDir, DecryptedDir)
 	RunCommandWithPassword(mountCmd, "mount", true)
 
