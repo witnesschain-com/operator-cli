@@ -7,7 +7,7 @@ require (
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/urfave/cli/v2 v2.27.2
 	github.com/wagslane/go-password-validator v0.3.0
-	github.com/witnesschain-com/diligencewatchtower-client v1.0.5
+	github.com/witnesschain-com/diligencewatchtower-client v1.0.6
 )
 
 require (
@@ -41,5 +41,3 @@ require (
 	golang.org/x/term v0.21.0 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 )
-
-replace github.com/witnesschain-com/diligencewatchtower-client => ../diligencewatchtower-client

@@ -95,6 +95,10 @@ func GetConfigFromContext(cCtx *cli.Context) *OperatorConfig {
 	chainID, err := client.ChainID(context.Background())
 	wc_common.CheckError(err, "unable to get chainID")
 	config.ChainID = chainID
+
+	if config.OperatorAddress.Cmp(common.Address{0}) == 0 {
+		panic("operatorAddress is zero")
+	}
 	
 	return &config
 }
