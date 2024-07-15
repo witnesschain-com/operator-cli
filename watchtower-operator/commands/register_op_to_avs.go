@@ -1,8 +1,10 @@
 package operator_commands
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/witnesschain-com/diligencewatchtower-client/keystore"
 	wc_common "github.com/witnesschain-com/operator-cli/common"
 	"github.com/witnesschain-com/operator-cli/common/bindings/AvsDirectory"
@@ -33,6 +35,13 @@ func RegisterOperatorToAVSCmd() *cli.Command {
 func RegisterOperatorToAVS(config *operator_config.OperatorConfig) {
 	client := wc_common.ConnectToUrl(config.EthRPCUrl)
 
+	chainID, err := client.ChainID(context.Background())
+	wc_common.CheckError(err, "unable to retrive chainID form: " + config.EthRPCUrl)
+
+	if wc_common.NetworkConfig[chainID.String()].WitnessHubAddress.Cmp(common.Address{0}) == 0  {
+		fmt.Printf("Contract %v not found at %v\n. Please verify that witnesschain contract are deployed for this chain", wc_common.NetworkConfig[chainID.String()].WitnessHubAddress, config.EthRPCUrl)
+	}
+
 	operatorRegistry, err := OperatorRegistry.NewOperatorRegistry(wc_common.NetworkConfig[config.ChainID.String()].OperatorRegistryAddress, client)
 	wc_common.CheckError(err, "Instantiating OperatorRegistry contract failed")
 
@@ -54,7 +63,7 @@ func RegisterOperatorToAVS(config *operator_config.OperatorConfig) {
 	wc_common.CheckError(err, "Instantiating WitnessHub contract failed")
 
 	expiry := wc_common.CalculateExpiry(client, config.ExpiryInDays)
-	vc := &keystore.VaultConfig{Address: config.OperatorAddress, PrivateKey: config.OperatorPrivateKey, GocryptfsKey: config.OperatorEncryptedKey, Endpoint: config.Endpoint}
+	vc := &keystore.VaultConfig{Address: config.OperatorAddress, PrivateKey: config.OperatorPrivateKey, GocryptfsKey: config.OperatorEncryptedKey, Endpoint: config.Endpoint, ChainID: chainID}
 	operatorVault, err := keystore.SetupVault(vc)
 	wc_common.CheckError(err, "unable to setup operator Vault: " + vc.Address.Hex())
 	operatorSignature := GetOpertorSignature(client, avsDirectory, wc_common.NetworkConfig[config.ChainID.String()].WitnessHubAddress, operatorVault, config.OperatorAddress, expiry)
