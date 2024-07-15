@@ -73,7 +73,7 @@ func DeRegisterOperatorFromAVS(config *operator_config.OperatorConfig) {
 	tx, err := witnessHub.DeregisterOperatorFromAVS(transactOpts, config.OperatorAddress)
 	wc_common.CheckError(err, "deregistering operator to AVS failed")
 
-	fmt.Printf("Tx sent: %s\n", tx.Hash().Hex())
+	fmt.Printf("Tx sent: %s/tx/%s\n", wc_common.NetworkConfig[chainID.String()].BlockExplorer, tx.Hash().Hex())
 
 	wc_common.WaitForTransactionReceipt(client, tx, config.TxReceiptTimeout)
 }

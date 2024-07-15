@@ -73,7 +73,7 @@ func RegisterOperatorToAVS(config *operator_config.OperatorConfig) {
 	tx, err := witnessHub.RegisterOperatorToAVS(transactOpts, config.OperatorAddress, operatorSignature)
 	wc_common.CheckError(err, "Registering operator to AVS failed")
 
-	fmt.Printf("Tx sent: %s\n", tx.Hash().Hex())
+	fmt.Printf("Tx sent: %s/tx/%s\n", wc_common.NetworkConfig[chainID.String()].BlockExplorer, tx.Hash().Hex())
 
 	wc_common.WaitForTransactionReceipt(client, tx, config.TxReceiptTimeout)
 }

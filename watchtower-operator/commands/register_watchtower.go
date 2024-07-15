@@ -80,7 +80,7 @@ func RegisterWatchtower(config *operator_config.OperatorConfig) {
 		signedMessage := SignOperatorAddress(client, operatorRegistry, watchtowerVault, config.OperatorAddress, salt, expiry)
 		regTx, err := operatorRegistry.RegisterWatchtowerAsOperator(transactOpts, watchtowerAddress, salt, expiry, signedMessage)
 		wc_common.CheckError(err, "Registering watchtower as operator failed")
-		fmt.Printf("Tx sent: %s\n", regTx.Hash().Hex())
+		fmt.Printf("Tx sent: %s/tx/%s\n", wc_common.NetworkConfig[chainID.String()].BlockExplorer, regTx.Hash().Hex())
 		wc_common.WaitForTransactionReceipt(client, regTx, config.TxReceiptTimeout)
 	}
 }

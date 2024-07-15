@@ -23,11 +23,13 @@ type ChainConfig struct{
 	WitnessHubAddress       common.Address
 	AVSDirectoryAddress     common.Address
 	ChainID                 big.Int
+	BlockExplorer           string
 }
 
 var BlueOrangutan = ChainConfig {
 	OperatorRegistryAddress: common.HexToAddress("0x26710e60A36Ace8A44e1C3D7B33dc8B80eAb6cb7"),
 	ChainID: *big.NewInt(1237146866),
+	BlockExplorer: "https://blue-orangutan-blockscout.eu-north-2.gateway.fm",
 }
 
 var Holesky = ChainConfig {
@@ -35,6 +37,7 @@ var Holesky = ChainConfig {
 	WitnessHubAddress: common.HexToAddress("0xa987EC494b13b21A8a124F8Ac03c9F530648C87D"),
 	AVSDirectoryAddress: common.HexToAddress("0x055733000064333CaDDbC92763c58BF0192fFeBf"),
 	ChainID: *big.NewInt(17000),
+	BlockExplorer: "https://holesky.etherscan.io/",
 }
 
 var NetworkConfig = map[string] ChainConfig {

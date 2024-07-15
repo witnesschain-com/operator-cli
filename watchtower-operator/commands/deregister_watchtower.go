@@ -61,7 +61,7 @@ func DeRegisterWatchtower(config *operator_config.OperatorConfig) {
 
 		regTx, err := operatorRegistry.DeRegister(transactOpts, watchtowerAddress)
 		wc_common.CheckError(err, "Registering watchtower as operator failed")
-		fmt.Printf("Tx sent: %s\n", regTx.Hash().Hex())
+		fmt.Printf("Tx sent: %s/tx/%s\n", wc_common.NetworkConfig[chainID.String()].BlockExplorer, regTx.Hash().Hex())
 		wc_common.WaitForTransactionReceipt(client, regTx, config.TxReceiptTimeout)
 	}
 }
