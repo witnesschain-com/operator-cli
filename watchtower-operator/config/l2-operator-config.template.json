@@ -1,0 +1,14 @@
+{
+  "watchtower_private_keys": [
+    "Plaintext private key (least security) e.g. 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "Plaintext private key (least security) e.g. abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+  ],
+  "watchtower_encrypted_keys": [
+    "<Encrypted Keys (moderate security): path of encrypted keys. e.g. ~/.witnesschain.com/.encrypted_keys/watchtower1.key",
+    "<Encrypted Keys (moderate security): path of encrypted keys. e.g. ~/.witnesschain.com/.encrypted_keys/watchtower2.key"
+  ],
+  "operator_private_key": "<alternate-path(optional) + operator-private-key-name>",
+  "operator_encrypted_key": "<path of operator encrypted Key. e.g. ~/.witnesschain.com/.encrypted_keys/operator.key>",
+  "eth_rpc_url": "<L2 (mainnet-witnesschain or testnet-witnesschain) RPC URL>",
+  "expiry": "<expiry_in_days>"
+}

@@ -37,7 +37,7 @@ var Holesky = ChainConfig {
 	WitnessHubAddress: common.HexToAddress("0xa987EC494b13b21A8a124F8Ac03c9F530648C87D"),
 	AVSDirectoryAddress: common.HexToAddress("0x055733000064333CaDDbC92763c58BF0192fFeBf"),
 	ChainID: *big.NewInt(17000),
-	BlockExplorer: "https://holesky.etherscan.io/",
+	BlockExplorer: "https://holesky.etherscan.io",
 }
 
 var NetworkConfig = map[string] ChainConfig {
