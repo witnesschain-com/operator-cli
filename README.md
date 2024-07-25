@@ -76,9 +76,10 @@ $ watchtower-operator keys list
 ```
 
 These keys are stored in web3 secret storage format recommended by 
-ethereum foundation. `watchtower-operator` cli also support 
-[gocryptfs](docs/gocryptfs.md) and [plaintext](docs/plaintext.md) 
-format.
+[ethereum 
+foundation](https://ethereum.org/en/developers/docs/data-structures-and-encoding/web3-secret-storage/). 
+`watchtower-operator` cli also support [gocryptfs](docs/gocryptfs.md) 
+and [plaintext](docs/plaintext.md) format.
 
 ## 3. Setup config file
 
