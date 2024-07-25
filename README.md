@@ -3,7 +3,7 @@
 ## Description
 watchtower-operator is a command-line interface (CLI) tool for interacting with some functionalities provided by the WatchTower(EigenLayer AVS) contracts . You can refer to the [How to use the config files](#how-to-use-the_config-files) section to understand how to use the config files.
 
-## Installation
+## 1. Installation
 You can get the watchtower-operator cli prebuilt, or build from source
 
 
@@ -18,7 +18,7 @@ Installation instructions for building from source is available in
 [docs/install.md](docs/install.md).
 
 
-## watchtower-operator cli usage
+##  watchtower-operator cli usage
 Once you have the watchtower-operator installed, you can directly use the exectable -
 
 ```
@@ -35,7 +35,7 @@ Note: In case you haven't exported the path for watchtower-operator executable, 
 |registerOperatorToAVS | Used to notify EigenLayer that an operator is registered to the AVS |
 |deRegisterOperatorFromAVS | Used to notify EigenLayer that an operator is de-registered from the AVS |
 
-## Key management
+## 2. Key management
 
 You need access to operator and watchtower private keys to register your 
 operator and watchtowers to WitnessChain. The following sections guide 
@@ -76,7 +76,7 @@ $ watchtower-operator keys list
 kripashanker@fedora:~$
 ```
 
-## Setup config file
+## 3. Setup config file
 
 Now create a new file, `operator-config.json`, and fill in the operator 
 private keys and watchtower private keys. You must also change the 
@@ -104,9 +104,35 @@ represent the imported keys of your watchotwers.
 You can read more about other customization in 
 [docs/config.md](docs/config.md)
 
-### Register oeprator to AVS
+### 4. Register oeprator to AVS
+```
+$ watchtower-operator registerOperatorToAVS --config-file operator-config.json
+Using config file path : operator-config.json
+Using the key path : .w3secretkeys
+Enter password to export web3 secret storage keys: **********
+Connection successful :  17000
+github.com/witnes .. │ Jul 25 16:09:23 2024 │ ➤ keystore: raw://0x621593B9Ae270C418e9190714e7786Ba69398834
+Tx sent: https://holesky.etherscan.io/tx/0x36ead44cfaa8b9d3e0b25f03399a0b0517b59e77e407b3574b5dc09dc7479b4a
+Transaction executed successfully, logs are ...
+[0xc010af8000]
+```
 
-### deRegister oeprator from AVS
-### Register watchtower
-### deRegister watchtower
+
+### 5. Register watchtower
+```
+$ watchtower-operator registerWatchtower --config-file operator-config.json
+Using config file path : operator-config.json
+Using the key path : .w3secretkeys
+Enter password to export web3 secret storage keys: **********
+Connection successful :  17000
+github.com/witnes .. │ Jul 25 16:52:40 2024 │ ➤ keystore: raw://0x621593B9Ae270C418e9190714e7786Ba69398834
+watchtowerAddress: 0x621593B9Ae270C418e9190714e7786Ba69398834
+github.com/witnes .. │ Jul 25 16:52:41 2024 │ ➤ keystore: raw://0x621593B9Ae270C418e9190714e7786Ba69398834
+Tx sent: https://holesky.etherscan.io/tx/0x4f5d9ac9f8b425cbd2d32ac32625e6441e00c7692a57d7d884b842ff92be8901
+Transaction executed successfully, logs are ...
+[0xc010966000]
+```
+Congratulations! Your watchtower is successfully registered. Now you can 
+proceed to install watchtower-client and submit proofs on chain.
+
 
