@@ -41,7 +41,7 @@ You need access to operator and watchtower private keys to register your
 operator and watchtowers to WitnessChain. The following sections guide 
 how to setup operator and watchtower keys.
 
-###  Initialise keystore
+###  Initialise web3 secret storage keystore
 
 ```
 $ watchtower-operator keys init
@@ -49,7 +49,7 @@ Creating directory:  .w3secretkeys
 Init keystore done
 ```
 
-### Import existing keys
+### Import existing operator and watchtower keys
 ```
 $ watchtower-operator keys import --key-name operator
 Enter password to import: **********
@@ -73,8 +73,12 @@ $ watchtower-operator keys list
    operator.ecdsa.key.json                                                25-07-2024 14:57:20
    watchtower1.ecdsa.key.json                                             25-07-2024 14:57:36
    -----------------------------------------------------------------------------------------------
-kripashanker@fedora:~$
 ```
+
+These keys are stored in web3 secret storage format recommended by 
+ethereum foundation. `watchtower-operator` cli also support 
+[gocryptfs](docs/gocryptfs.md) and [plaintext](docs/plaintext.md) 
+format.
 
 ## 3. Setup config file
 
@@ -134,5 +138,3 @@ Transaction executed successfully, logs are ...
 ```
 Congratulations! Your watchtower is successfully registered. Now you can 
 proceed to install watchtower-client and submit proofs on chain.
-
-

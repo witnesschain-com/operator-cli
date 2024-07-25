@@ -12,16 +12,30 @@ files system is mounted.
 ### Pre-requisite
 Install gocryptfs
 
-### Gocryptfs key management
-
-After this command, two directories `.encrypted_keys` and `.decrypted_keys` are created inside a directory `.gocryptfs`. The names indicate their functions. Once this is done, we don't need to do it again, unless the `.encrypted_keys` or `.decrypted_keys` are tampered with. Once the command is successfully run, all other actions to create/import/export/delete `gocryptfs` type will need this password.
-
-
 ```bash
 sudo apt install gocryptfs
 ```
 
-The below example shows how you can use the key names which will be taken from an alternate path using `gocryptfs` type. The type can also be `w3secretkeys`
+### Gocryptfs key management
+
+```
+watchtower-operator keys init -t gocryptfs
+```
+After this command, two directories `.encrypted_keys` and 
+`.decrypted_keys` are created inside a directory `.gocryptfs`. The names 
+indicate their functions. Once this is done, we don't need to do it 
+again, unless the `.encrypted_keys` or `.decrypted_keys` are tampered 
+with. Once the command is successfully run, all other actions to 
+create/import/export/delete `gocryptfs` type will need this password.
+
+The usage of `import`, `create`, `list` is similar to [web3 secret 
+storage](../README.md). You need to pass key type `--key-type gocryptfs` 
+with each commands.
+
+Once, you have imported keys, create a `operator-config.json` with 
+following template:-
+
+The below example shows how you can use the key names which will be taken from an alternate path using `gocryptfs` type.
 ```
 {
   "watchtower_encrypted_keys": [
