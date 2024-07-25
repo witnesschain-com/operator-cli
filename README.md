@@ -87,7 +87,7 @@ Now create a new file, `operator-config.json`, and fill in the operator
 private keys and watchtower private keys. You must also change the 
 `eth_rpc_url` to the L1 Ethereum node that you trust.
 
-Create a new configuration file with the following template for mainnet:
+Create a new configuration file with the following template for testnet:
 
 ```
 {
@@ -96,11 +96,27 @@ Create a new configuration file with the following template for mainnet:
     "watchtower2.ecdsa.json"
   ],
   "operator_encrypted_key": "operator.ecdsa.json",
-  "eth_rpc_url": "wss://ethereum-rpc.publicnode.com"
+  "eth_rpc_url": "https://ethereum-holesky-rpc.publicnode.com",
+  "proof_submission_rpc_url": "https://blue-orangutan-rpc.eu-north-2.gateway.fm/"
 }
 ```
 
-In case you are running on testnet, replace "eth_rpc_url" with holesky.
+In case you are running on mainnet, replace `eth_rpc_url` and 
+`proof_submission_rpc_url`.
+
+Template config for mainnet
+
+```
+{
+  "watchtower_encrypted_keys": [
+    "watchtower1.ecdsa.json",
+    "watchtower2.ecdsa.json"
+  ],
+  "operator_encrypted_key": "operator.ecdsa.json",
+  "eth_rpc_url": "wss://ethereum-rpc.publicnode.com",
+  "proof_submission_rpc_url": "https://rpc.witnesschain.com"
+}
+```
 
 Here, `operator_encrypted_key` corresponds to the operator private key 
 that you imported earlier. Similarly, `watchtower_encrypted_keys` 
