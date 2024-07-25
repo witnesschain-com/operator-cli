@@ -92,10 +92,10 @@ Create a new configuration file with the following template for testnet:
 ```
 {
   "watchtower_encrypted_keys": [
-    "watchtower1.ecdsa.json",
-    "watchtower2.ecdsa.json"
+    "watchtower1.ecdsa.key.json",
+    "watchtower2.ecdsa.key.json"
   ],
-  "operator_encrypted_key": "operator.ecdsa.json",
+  "operator_encrypted_key": "operator.ecdsa.key.json",
   "eth_rpc_url": "https://ethereum-holesky-rpc.publicnode.com",
   "proof_submission_rpc_url": "https://blue-orangutan-rpc.eu-north-2.gateway.fm/"
 }
