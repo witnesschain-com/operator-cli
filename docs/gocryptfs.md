@@ -6,7 +6,7 @@ gocryptfs. It store keys in encrypted format when the key is not in use
 
 ## Gocryptfs: store keys in encrypted format
 Gocryptfs provide an encrypted file system. It uses FUSE (Filesystem in 
-userpace) to mount encrypted directory which are decrypted when the 
+userspace) to mount encrypted directory which are decrypted when the 
 files system is mounted.
 
 ### Pre-requisite
